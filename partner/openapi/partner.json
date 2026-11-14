@@ -1883,7 +1883,7 @@
                           {
                             "field": "type",
                             "errors": [
-                              "type must be one of the following values: mobile, gift_card, esim, bill"
+                              "type must be one of the following values: mobile, gift_card, esim"
                             ]
                           }
                         ]
@@ -1902,17 +1902,6 @@
                       "details": {
                         "quantity": 0
                       },
-                      "path": "/external/v1/orders",
-                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
-                    }
-                  },
-                  "BILLS400_INVALID_SELECTION": {
-                    "summary": "Bills not from the lookup",
-                    "value": {
-                      "statusCode": 400,
-                      "message": "Select bills from this lookup",
-                      "errorCode": "BILLS400_INVALID_SELECTION",
-                      "timestamp": "2026-11-12T10:43:39.145Z",
                       "path": "/external/v1/orders",
                       "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
                     }
@@ -2080,17 +2069,6 @@
                       "path": "/external/v1/orders",
                       "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
                     }
-                  },
-                  "BILLS404_LOOKUP_NOT_FOUND": {
-                    "summary": "Unknown bill lookup",
-                    "value": {
-                      "statusCode": 404,
-                      "message": "The bill lookup was not found",
-                      "errorCode": "BILLS404_LOOKUP_NOT_FOUND",
-                      "timestamp": "2026-11-12T10:43:39.145Z",
-                      "path": "/external/v1/orders",
-                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
-                    }
                   }
                 }
               }
@@ -2121,54 +2099,6 @@
                       "statusCode": 409,
                       "message": "Not enough gift card stock for this quantity",
                       "errorCode": "GIFTCARD409_OUT_OF_STOCK",
-                      "timestamp": "2026-11-12T10:43:39.145Z",
-                      "path": "/external/v1/orders",
-                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
-                    }
-                  },
-                  "BILLS409_ALREADY_PAID": {
-                    "summary": "Bill already paid",
-                    "value": {
-                      "statusCode": 409,
-                      "message": "This bill was already paid",
-                      "errorCode": "BILLS409_ALREADY_PAID",
-                      "timestamp": "2026-11-12T10:43:39.145Z",
-                      "path": "/external/v1/orders",
-                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
-                    }
-                  },
-                  "BILLS409_AMOUNT_CHANGED": {
-                    "summary": "Bill total changed",
-                    "value": {
-                      "statusCode": 409,
-                      "message": "The bill total changed, refresh the lookup before paying",
-                      "errorCode": "BILLS409_AMOUNT_CHANGED",
-                      "timestamp": "2026-11-12T10:43:39.145Z",
-                      "details": {
-                        "expectedTotal": 1030,
-                        "total": 1060
-                      },
-                      "path": "/external/v1/orders",
-                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
-                    }
-                  },
-                  "BILLS409_LOOKUP_NOT_READY": {
-                    "summary": "Lookup not ready yet",
-                    "value": {
-                      "statusCode": 409,
-                      "message": "The bill lookup is not ready yet",
-                      "errorCode": "BILLS409_LOOKUP_NOT_READY",
-                      "timestamp": "2026-11-12T10:43:39.145Z",
-                      "path": "/external/v1/orders",
-                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
-                    }
-                  },
-                  "BILLS409_PAYMENT_IN_PROGRESS": {
-                    "summary": "Bill payment already in progress",
-                    "value": {
-                      "statusCode": 409,
-                      "message": "A payment for this bill transaction is already in progress",
-                      "errorCode": "BILLS409_PAYMENT_IN_PROGRESS",
                       "timestamp": "2026-11-12T10:43:39.145Z",
                       "path": "/external/v1/orders",
                       "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
@@ -2240,7 +2170,7 @@
             }
           },
           "503": {
-            "description": "The service or biller is temporarily unavailable.",
+            "description": "The service is temporarily unavailable.",
             "content": {
               "application/json": {
                 "examples": {
@@ -2265,7 +2195,7 @@
             "api-key": []
           }
         ],
-        "summary": "Sell a mobile top-up, a gift card or an eSIM, or pay bills (by `type`)",
+        "summary": "Sell a mobile top-up, a gift card or an eSIM (by `type`)",
         "tags": [
           "Partner API"
         ]
@@ -2324,8 +2254,7 @@
               "enum": [
                 "mobile",
                 "gift_card",
-                "esim",
-                "bill"
+                "esim"
               ]
             }
           },
@@ -2399,50 +2328,6 @@
                       },
                       "createdAt": "2026-11-11T11:11:07.809Z",
                       "updatedAt": "2026-11-11T11:11:12.263Z",
-                      "refundedAt": null
-                    },
-                    {
-                      "type": "bill",
-                      "id": "739e0adb-8bad-4147-9ce0-4cd14a32ae0b",
-                      "status": "fulfilled",
-                      "outcome": "success",
-                      "failureCode": null,
-                      "clientRef": "412d8177-e98b-48f1-8f5b-910431fbb06e",
-                      "amount": 560,
-                      "quantity": 1,
-                      "planCode": "BILL_SONELGAZ",
-                      "productRef": "6af459cbf750b351c8d33939",
-                      "targetNumber": "326463",
-                      "deliveredCardCode": null,
-                      "deliveredSerial": "SBX-1794398681180",
-                      "reviewReason": null,
-                      "earnedMargin": 10,
-                      "product": {
-                        "id": "bf5ccf47-2218-4b33-92ba-fef837ff3948",
-                        "name": "BILL_SONELGAZ",
-                        "category": "bill"
-                      },
-                      "bill": {
-                        "biller": "BILL_SONELGAZ",
-                        "partner": "SONELGAZ",
-                        "identifier": "326463",
-                        "bills": [
-                          {
-                            "billId": "sbx_bill_6af459cbf750b351c8d33939_0",
-                            "amount": 500,
-                            "customerFee": 60,
-                            "label": "Default sandbox bill"
-                          }
-                        ],
-                        "billAmount": 500,
-                        "customerFee": 60,
-                        "operationId": "SBX-1794398681180",
-                        "receiptAvailable": true,
-                        "payMethod": "cash"
-                      },
-                      "giftCard": null,
-                      "createdAt": "2026-11-11T11:04:40.442Z",
-                      "updatedAt": "2026-11-11T11:04:42.968Z",
                       "refundedAt": null
                     }
                   ],
@@ -3193,11 +3078,10 @@
             "enum": [
               "mobile",
               "gift_card",
-              "esim",
-              "bill"
+              "esim"
             ],
             "default": "mobile",
-            "description": "What to buy. Each type takes its own fields: mobile → operator, planCode, phoneNumber, amount; gift_card → productId, typeId, quantity; esim → packageId, quantity, days, customer; bill → lookupId, billIds, expectedTotal."
+            "description": "What to buy. Each type takes its own fields: mobile → operator, planCode, phoneNumber, amount; gift_card → productId, typeId, quantity; esim → packageId, quantity, days, customer."
           },
           "clientRef": {
             "type": "string",
@@ -3261,23 +3145,6 @@
                 "$ref": "#/components/schemas/EsimCustomerDto"
               }
             ]
-          },
-          "lookupId": {
-            "type": "string",
-            "example": "68cdf0a2b7c1e4d5f6a7b8c9",
-            "description": "bill only: the lookupId of a ready POST /bills/lookups"
-          },
-          "billIds": {
-            "description": "bill only: the bill ids chosen on the ready lookup (SEAAL may take several)",
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "expectedTotal": {
-            "type": "number",
-            "example": 1030,
-            "description": "bill only: the total the lookup answered for these bills (amounts + fees), in DZD. A different total answers 409: look the bills up again"
           }
         },
         "required": [
