@@ -1,0 +1,3275 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Mizaniya Pay Partner API",
+    "version": "0.0.1",
+    "description": "Sell Mizaniya Pay services from your own website or app: send your API key in the x-api-key header."
+  },
+  "paths": {
+    "/external/v1/me": {
+      "get": {
+        "operationId": "ExternalApiController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": {
+                    "posId": "7acaacba-3669-4682-b91e-11e2b05b0317",
+                    "type": "master",
+                    "environment": "sandbox",
+                    "keyPrefix": "mzp_test_zsupvrRf9jad",
+                    "label": "docs probe full",
+                    "scopes": [
+                      "balance:read",
+                      "catalog:read"
+                    ],
+                    "expiresAt": null
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/me",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/me",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/me",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/me",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/me",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/me",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/me",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/me",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "The account and scopes behind the presented key",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    },
+    "/external/v1/balance": {
+      "get": {
+        "operationId": "ExternalApiController_balance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": {
+                    "balance": 128881,
+                    "profit": 264.45
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/balance",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/balance",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/balance",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/balance",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/balance",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/balance",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the balance:read scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "balance:read",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/balance",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/balance",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/balance",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "The account's spendable balance and accrued profit",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    },
+    "/external/v1/products": {
+      "get": {
+        "operationId": "ExternalApiController_products",
+        "parameters": [
+          {
+            "name": "operator",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "djezzy",
+                "ooredoo",
+                "mobilis"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": [
+                    {
+                      "operator": "ooredoo",
+                      "products": [
+                        {
+                          "code": "PREPAID_OOREDOO",
+                          "name": "📱 PREPAID | عادي",
+                          "minAmount": 100,
+                          "maxAmount": 5000,
+                          "available": true
+                        },
+                        {
+                          "code": "ENTERPRISE_OOREDOO",
+                          "name": "📋 ENTERPRISE | فاتورة",
+                          "minAmount": 100,
+                          "maxAmount": 5000,
+                          "available": true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request: the request is malformed or a value is invalid (see details.errors).",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "VALIDATION400": {
+                    "summary": "Invalid query or body",
+                    "value": {
+                      "statusCode": 400,
+                      "message": "Dto validation error",
+                      "errorCode": "VALIDATION400",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "errors": [
+                          {
+                            "field": "operator",
+                            "errors": [
+                              "operator must be one of the following values: ooredoo, djezzy, mobilis"
+                            ]
+                          }
+                        ]
+                      },
+                      "path": "/external/v1/products",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/products",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/products",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the catalog:read scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "catalog:read",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/products",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/products",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/products",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "Mobile top-up plans, per operator",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    },
+    "/external/v1/products/gift-cards": {
+      "get": {
+        "operationId": "ExternalApiController_giftCards",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": [
+                    {
+                      "productId": "60d83c9851bed7424c20bc49",
+                      "title": "Viber",
+                      "category": "Media & Stream"
+                    },
+                    {
+                      "productId": "60d839f451bed7424c20bbe2",
+                      "title": "Shahid",
+                      "category": "Media & Stream"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/gift-cards",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/products/gift-cards",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/products/gift-cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/gift-cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/gift-cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/gift-cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the catalog:read scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "catalog:read",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/products/gift-cards",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/products/gift-cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/products/gift-cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The upstream provider failed: the operation may be retried later.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ONECLICK502_UPSTREAM": {
+                    "summary": "Gift card provider failed",
+                    "value": {
+                      "statusCode": 502,
+                      "message": "OneClick request failed",
+                      "errorCode": "ONECLICK502_UPSTREAM",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/gift-cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "Gift card products",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    },
+    "/external/v1/products/gift-cards/{productId}": {
+      "get": {
+        "operationId": "ExternalApiController_giftCard",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": {
+                    "productId": "60d83c9851bed7424c20bc49",
+                    "title": "Viber",
+                    "category": "Media & Stream",
+                    "currency": "DZD",
+                    "available": false,
+                    "pricingModel": "cost_plus",
+                    "cardMarkup": null,
+                    "types": []
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/gift-cards/{productId}",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/products/gift-cards/{productId}",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/products/gift-cards/{productId}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/gift-cards/{productId}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/gift-cards/{productId}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/gift-cards/{productId}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the catalog:read scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "catalog:read",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/products/gift-cards/{productId}",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource does not exist, or is not yours.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "GIFTCARD404_PRODUCT_NOT_FOUND": {
+                    "summary": "Unknown or unlisted product",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "Gift card product not found or not available",
+                      "errorCode": "GIFTCARD404_PRODUCT_NOT_FOUND",
+                      "timestamp": "2026-11-12T10:43:38.624Z",
+                      "details": {
+                        "productId": "does-not-exist"
+                      },
+                      "path": "/external/v1/products/gift-cards/does-not-exist",
+                      "requestId": "c4a4033d-e14d-4425-ac02-b8ad23828be7"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/products/gift-cards/{productId}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/products/gift-cards/{productId}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The upstream provider failed: the operation may be retried later.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ONECLICK502_UPSTREAM": {
+                    "summary": "Gift card provider failed",
+                    "value": {
+                      "statusCode": 502,
+                      "message": "OneClick request failed",
+                      "errorCode": "ONECLICK502_UPSTREAM",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/gift-cards/{productId}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "Denominations of one gift card product, with price, stock and maxQuantity",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    },
+    "/external/v1/products/esim": {
+      "get": {
+        "operationId": "ExternalApiController_esimLocations",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Filter by name or code",
+            "schema": {
+              "example": "fr",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": [
+                    {
+                      "code": "TR",
+                      "name": "Turkey",
+                      "type": "country",
+                      "image": ""
+                    },
+                    {
+                      "code": "FR",
+                      "name": "France",
+                      "type": "country",
+                      "image": ""
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/products/esim",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/products/esim",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the catalog:read scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "catalog:read",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/products/esim",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/products/esim",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/products/esim",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The upstream provider failed: the operation may be retried later.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "GOSIM502_UPSTREAM": {
+                    "summary": "eSIM provider failed",
+                    "value": {
+                      "statusCode": 502,
+                      "message": "eSIM provider request failed",
+                      "errorCode": "GOSIM502_UPSTREAM",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "eSIM destinations: countries, regions, global",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    },
+    "/external/v1/products/esim/packages/{packageId}/price": {
+      "get": {
+        "operationId": "ExternalApiController_esimPrice",
+        "parameters": [
+          {
+            "name": "packageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "quantity",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "days",
+            "required": false,
+            "in": "query",
+            "description": "Days, for unlimited plans",
+            "schema": {
+              "example": 7,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": {
+                    "packageId": 101,
+                    "packageName": "TR 1GB 7 days",
+                    "unitPrice": 1200,
+                    "quantity": 1,
+                    "serviceFee": 0,
+                    "discount": 0,
+                    "total": 1200,
+                    "currency": "DZD"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request: the request is malformed or a value is invalid (see details.errors).",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_400": {
+                    "summary": "packageId is not a number",
+                    "value": {
+                      "message": "Validation failed (numeric string is expected)",
+                      "error": "Bad Request",
+                      "statusCode": 400,
+                      "path": "/external/v1/products/esim/packages/abc/price",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "VALIDATION400": {
+                    "summary": "Invalid query or body",
+                    "value": {
+                      "statusCode": 400,
+                      "message": "Dto validation error",
+                      "errorCode": "VALIDATION400",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "errors": [
+                          {
+                            "field": "quantity",
+                            "errors": [
+                              "quantity must not be less than 1"
+                            ]
+                          }
+                        ]
+                      },
+                      "path": "/external/v1/products/esim/packages/101/price",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim/packages/{packageId}/price",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/products/esim/packages/{packageId}/price",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/products/esim/packages/{packageId}/price",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim/packages/{packageId}/price",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim/packages/{packageId}/price",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim/packages/{packageId}/price",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the catalog:read scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "catalog:read",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/products/esim/packages/{packageId}/price",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource does not exist, or is not yours.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "GOSIM404_PACKAGE_NOT_FOUND": {
+                    "summary": "Unknown package",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "Unknown eSIM package",
+                      "errorCode": "GOSIM404_PACKAGE_NOT_FOUND",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "packageId": 999
+                      },
+                      "path": "/external/v1/products/esim/packages/999/price",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/products/esim/packages/{packageId}/price",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/products/esim/packages/{packageId}/price",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The upstream provider failed: the operation may be retried later.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "GOSIM502_UPSTREAM": {
+                    "summary": "eSIM provider failed",
+                    "value": {
+                      "statusCode": 502,
+                      "message": "eSIM provider request failed",
+                      "errorCode": "GOSIM502_UPSTREAM",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim/packages/101/price",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "What an eSIM order of this package costs, service fee included",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    },
+    "/external/v1/products/esim/{locationCode}": {
+      "get": {
+        "operationId": "ExternalApiController_esimPackages",
+        "parameters": [
+          {
+            "name": "locationCode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": [
+                    {
+                      "id": 101,
+                      "name": "TR 1GB 7 days",
+                      "price": 1200,
+                      "currency": "DZD",
+                      "duration": 7,
+                      "volumeLabel": "1GB",
+                      "isUnlimited": false,
+                      "networks": [
+                        "Turkcell"
+                      ],
+                      "networkTypes": [
+                        "5G"
+                      ],
+                      "sellingPrice": 1200
+                    },
+                    {
+                      "id": 102,
+                      "name": "TR 3GB 15 days",
+                      "price": 2900,
+                      "currency": "DZD",
+                      "duration": 15,
+                      "volumeLabel": "3GB",
+                      "isUnlimited": false,
+                      "networks": [
+                        "Turkcell"
+                      ],
+                      "networkTypes": [
+                        "5G"
+                      ],
+                      "sellingPrice": 2900
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim/{locationCode}",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/products/esim/{locationCode}",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/products/esim/{locationCode}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim/{locationCode}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim/{locationCode}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim/{locationCode}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the catalog:read scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "catalog:read",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/products/esim/{locationCode}",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource does not exist, or is not yours.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "GOSIM404_LOCATION_NOT_FOUND": {
+                    "summary": "Unknown destination",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "Unknown eSIM destination",
+                      "errorCode": "GOSIM404_LOCATION_NOT_FOUND",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "locationCode": "XX"
+                      },
+                      "path": "/external/v1/products/esim/XX",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/products/esim/{locationCode}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/products/esim/{locationCode}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The upstream provider failed: the operation may be retried later.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "GOSIM502_UPSTREAM": {
+                    "summary": "eSIM provider failed",
+                    "value": {
+                      "statusCode": 502,
+                      "message": "eSIM provider request failed",
+                      "errorCode": "GOSIM502_UPSTREAM",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/products/esim/TR",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "eSIM packages of one destination",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    },
+    "/external/v1/orders": {
+      "post": {
+        "operationId": "ExternalApiController_createOrder",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order accepted. The same clientRef with the same body returns the same order (safe to retry); poll GET /orders/{id} for its outcome.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": {
+                    "type": "esim",
+                    "id": "8a3b20d7-bd9e-4c90-9746-b208abc6cd80",
+                    "clientRef": "docs-8ffb427f",
+                    "status": "provisioning",
+                    "location": {
+                      "code": "TR",
+                      "name": "Turkey"
+                    },
+                    "package": {
+                      "id": 101,
+                      "name": "TR 1GB 7 days",
+                      "planType": "fixed_data",
+                      "volume": "1GB",
+                      "durationDays": 7,
+                      "carrier": "Turkcell 5G"
+                    },
+                    "quantity": 1,
+                    "unitPrice": 1260,
+                    "serviceFee": 0,
+                    "totalAmount": 1260,
+                    "currency": "DZD",
+                    "customer": {
+                      "name": "Test Traveller",
+                      "email": "traveller@example.test",
+                      "phone": null
+                    },
+                    "deliveredTo": [],
+                    "esim": null,
+                    "createdAt": "2026-11-12T09:43:38.906Z",
+                    "updatedAt": "2026-11-12T09:43:38.906Z",
+                    "refundedAt": null
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request: the request is malformed or a value is invalid (see details.errors).",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "VALIDATION400": {
+                    "summary": "Unknown type",
+                    "value": {
+                      "statusCode": 400,
+                      "message": "Dto validation error",
+                      "errorCode": "VALIDATION400",
+                      "timestamp": "2026-11-12T10:43:38.950Z",
+                      "details": {
+                        "errors": [
+                          {
+                            "field": "type",
+                            "errors": [
+                              "type must be one of the following values: mobile, gift_card, esim, bill"
+                            ]
+                          }
+                        ]
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "6e71ee1e-44ef-42cf-8a0a-4af9122cfb1c"
+                    }
+                  },
+                  "GIFTCARD400_INVALID_QUANTITY": {
+                    "summary": "Invalid gift card quantity",
+                    "value": {
+                      "statusCode": 400,
+                      "message": "Invalid gift card quantity",
+                      "errorCode": "GIFTCARD400_INVALID_QUANTITY",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "quantity": 0
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "BILLS400_INVALID_SELECTION": {
+                    "summary": "Bills not from the lookup",
+                    "value": {
+                      "statusCode": 400,
+                      "message": "Select bills from this lookup",
+                      "errorCode": "BILLS400_INVALID_SELECTION",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "ONECLICK400_REJECTED": {
+                    "summary": "Rejected by the provider",
+                    "value": {
+                      "statusCode": 400,
+                      "message": "The provider rejected the operation",
+                      "errorCode": "ONECLICK400_REJECTED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "MARKETPLACE403_INSUFFICIENT_BALANCE": {
+                    "summary": "Balance too low",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "Insufficient wallet balance for this sale",
+                      "errorCode": "MARKETPLACE403_INSUFFICIENT_BALANCE",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "required": 30450,
+                        "available": 1200
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the sell:create scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "sell:create",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource does not exist, or is not yours.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "GOSIM404_PACKAGE_NOT_FOUND": {
+                    "summary": "Unknown eSIM package",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "Unknown eSIM package",
+                      "errorCode": "GOSIM404_PACKAGE_NOT_FOUND",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "packageId": 999
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "GIFTCARD404_TYPE_NOT_FOUND": {
+                    "summary": "Unknown gift card denomination",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "Gift card denomination not found for this product",
+                      "errorCode": "GIFTCARD404_TYPE_NOT_FOUND",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "BILLS404_LOOKUP_NOT_FOUND": {
+                    "summary": "Unknown bill lookup",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "The bill lookup was not found",
+                      "errorCode": "BILLS404_LOOKUP_NOT_FOUND",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request conflicts with the current state (retry with a new clientRef, or refresh).",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "MARKETPLACE409_CLIENT_REF_CONFLICT": {
+                    "summary": "clientRef reused for another sale",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "This client reference was already used for a different sale",
+                      "errorCode": "MARKETPLACE409_CLIENT_REF_CONFLICT",
+                      "timestamp": "2026-11-12T10:43:38.941Z",
+                      "details": {
+                        "orderId": "8a3b20d7-bd9e-4c90-9746-b208abc6cd80"
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "f10ea02a-c05d-4235-8e8a-434834db74b3"
+                    }
+                  },
+                  "GIFTCARD409_OUT_OF_STOCK": {
+                    "summary": "Not enough gift card stock",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "Not enough gift card stock for this quantity",
+                      "errorCode": "GIFTCARD409_OUT_OF_STOCK",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "BILLS409_ALREADY_PAID": {
+                    "summary": "Bill already paid",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "This bill was already paid",
+                      "errorCode": "BILLS409_ALREADY_PAID",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "BILLS409_AMOUNT_CHANGED": {
+                    "summary": "Bill total changed",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "The bill total changed, refresh the lookup before paying",
+                      "errorCode": "BILLS409_AMOUNT_CHANGED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "expectedTotal": 1030,
+                        "total": 1060
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "BILLS409_LOOKUP_NOT_READY": {
+                    "summary": "Lookup not ready yet",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "The bill lookup is not ready yet",
+                      "errorCode": "BILLS409_LOOKUP_NOT_READY",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "BILLS409_PAYMENT_IN_PROGRESS": {
+                    "summary": "Bill payment already in progress",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "A payment for this bill transaction is already in progress",
+                      "errorCode": "BILLS409_PAYMENT_IN_PROGRESS",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "The upstream provider failed: the operation may be retried later.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "GOSIM502_UPSTREAM": {
+                    "summary": "Provider failed",
+                    "value": {
+                      "statusCode": 502,
+                      "message": "eSIM provider request failed",
+                      "errorCode": "GOSIM502_UPSTREAM",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "The service or biller is temporarily unavailable.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "ONECLICK403_INSUFFICIENT_FLOAT": {
+                    "summary": "Provider float exhausted",
+                    "value": {
+                      "statusCode": 503,
+                      "message": "OneClick float balance is insufficient for this operation",
+                      "errorCode": "ONECLICK403_INSUFFICIENT_FLOAT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "Sell a mobile top-up, a gift card or an eSIM, or pay bills (by `type`)",
+        "tags": [
+          "Partner API"
+        ]
+      },
+      "get": {
+        "operationId": "ExternalApiController_listOrders",
+        "parameters": [
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by start date (ISO string)",
+            "schema": {
+              "example": "2025-11-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by end date (ISO string)",
+            "schema": {
+              "example": "2025-11-15",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "mobile and gift_card list together when omitted; esim orders are listed only with type=esim",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "mobile",
+                "gift_card",
+                "esim",
+                "bill"
+              ]
+            }
+          },
+          {
+            "name": "operator",
+            "required": false,
+            "in": "query",
+            "description": "mobile orders of one operator",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "djezzy",
+                "ooredoo",
+                "mobilis"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "handling",
+                "fulfilled",
+                "refunded",
+                "under_review",
+                "failed",
+                "provisioning",
+                "activated",
+                "cancelled"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": [
+                    {
+                      "type": "gift_card",
+                      "id": "aa3149f6-b6ed-4b0d-9e7c-2977a814504c",
+                      "status": "fulfilled",
+                      "outcome": "success",
+                      "failureCode": null,
+                      "clientRef": "8efe0713-46b3-443a-ad6d-d08aeb01b789",
+                      "amount": 307,
+                      "quantity": 1,
+                      "planCode": "600b141a658904003143cb66",
+                      "productRef": "600b141a658904003143cb65",
+                      "targetNumber": null,
+                      "deliveredCardCode": null,
+                      "deliveredSerial": null,
+                      "reviewReason": null,
+                      "earnedMargin": 0,
+                      "product": {
+                        "id": "467053df-5644-4a16-ac35-9724f52c6ba9",
+                        "name": "PUBG Gift Card",
+                        "category": "gift_card"
+                      },
+                      "giftCard": {
+                        "productTitle": "PUBG",
+                        "typeName": "60"
+                      },
+                      "createdAt": "2026-11-11T11:11:07.809Z",
+                      "updatedAt": "2026-11-11T11:11:12.263Z",
+                      "refundedAt": null
+                    },
+                    {
+                      "type": "bill",
+                      "id": "739e0adb-8bad-4147-9ce0-4cd14a32ae0b",
+                      "status": "fulfilled",
+                      "outcome": "success",
+                      "failureCode": null,
+                      "clientRef": "412d8177-e98b-48f1-8f5b-910431fbb06e",
+                      "amount": 560,
+                      "quantity": 1,
+                      "planCode": "BILL_SONELGAZ",
+                      "productRef": "6af459cbf750b351c8d33939",
+                      "targetNumber": "326463",
+                      "deliveredCardCode": null,
+                      "deliveredSerial": "SBX-1794398681180",
+                      "reviewReason": null,
+                      "earnedMargin": 10,
+                      "product": {
+                        "id": "bf5ccf47-2218-4b33-92ba-fef837ff3948",
+                        "name": "BILL_SONELGAZ",
+                        "category": "bill"
+                      },
+                      "bill": {
+                        "biller": "BILL_SONELGAZ",
+                        "partner": "SONELGAZ",
+                        "identifier": "326463",
+                        "bills": [
+                          {
+                            "billId": "sbx_bill_6af459cbf750b351c8d33939_0",
+                            "amount": 500,
+                            "customerFee": 60,
+                            "label": "Default sandbox bill"
+                          }
+                        ],
+                        "billAmount": 500,
+                        "customerFee": 60,
+                        "operationId": "SBX-1794398681180",
+                        "receiptAvailable": true,
+                        "payMethod": "cash"
+                      },
+                      "giftCard": null,
+                      "createdAt": "2026-11-11T11:04:40.442Z",
+                      "updatedAt": "2026-11-11T11:04:42.968Z",
+                      "refundedAt": null
+                    }
+                  ],
+                  "total": 41,
+                  "currentPage": 1,
+                  "limit": 2,
+                  "totalPages": 21
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request: the request is malformed or a value is invalid (see details.errors).",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "VALIDATION400": {
+                    "summary": "Invalid query or body",
+                    "value": {
+                      "statusCode": 400,
+                      "message": "Dto validation error",
+                      "errorCode": "VALIDATION400",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "errors": [
+                          {
+                            "field": "limit",
+                            "errors": [
+                              "limit must not be greater than 100"
+                            ]
+                          }
+                        ]
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the orders:read scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "orders:read",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/orders",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "List the account's orders",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    },
+    "/external/v1/orders/{id}": {
+      "get": {
+        "operationId": "ExternalApiController_getOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": {
+                    "type": "esim",
+                    "id": "8a3b20d7-bd9e-4c90-9746-b208abc6cd80",
+                    "clientRef": "docs-8ffb427f",
+                    "status": "fulfilled",
+                    "location": {
+                      "code": "TR",
+                      "name": "Turkey"
+                    },
+                    "package": {
+                      "id": 101,
+                      "name": "TR 1GB 7 days",
+                      "planType": "fixed_data",
+                      "volume": "1GB",
+                      "durationDays": 7,
+                      "carrier": "Turkcell 5G"
+                    },
+                    "quantity": 1,
+                    "unitPrice": 1260,
+                    "serviceFee": 0,
+                    "totalAmount": 1260,
+                    "currency": "DZD",
+                    "customer": {
+                      "name": "Test Traveller",
+                      "email": "traveller@example.test",
+                      "phone": null
+                    },
+                    "deliveredTo": [
+                      "email"
+                    ],
+                    "esim": {
+                      "iccid": "8990261058301698648",
+                      "qrCode": "LPA:1$smdp.gosim.test$EE4D913A59C54370",
+                      "activationCode": "LPA:1$smdp.gosim.test$306911FD6C3B4FFE",
+                      "smdpAddress": "smdp.gosim.test"
+                    },
+                    "createdAt": "2026-11-12T09:43:38.906Z",
+                    "updatedAt": "2026-11-12T09:43:39.102Z",
+                    "refundedAt": null
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request: the request is malformed or a value is invalid (see details.errors).",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_400": {
+                    "summary": "id is not a UUID",
+                    "value": {
+                      "message": "Validation failed (uuid v 4 is expected)",
+                      "error": "Bad Request",
+                      "statusCode": 400,
+                      "path": "/external/v1/orders/not-a-uuid",
+                      "requestId": "aa9b071e-dea4-4aa4-baea-22c0f3f43555"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders/{id}",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/orders/{id}",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/orders/{id}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders/{id}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders/{id}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders/{id}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the orders:read scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "orders:read",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/orders/{id}",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource does not exist, or is not yours.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "MARKETPLACE404_ORDER_NOT_FOUND": {
+                    "summary": "Unknown order, or not yours",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "Marketplace order c7ec1e28-f1af-45e9-9b72-3938d92a64cb not found",
+                      "errorCode": "MARKETPLACE404_ORDER_NOT_FOUND",
+                      "timestamp": "2026-11-12T10:43:39.128Z",
+                      "details": {
+                        "id": "c7ec1e28-f1af-45e9-9b72-3938d92a64cb"
+                      },
+                      "path": "/external/v1/orders/c7ec1e28-f1af-45e9-9b72-3938d92a64cb",
+                      "requestId": "41c389c0-bb1b-4bde-a1f1-6879590a5743"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/orders/{id}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/orders/{id}",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "Get one order; partners poll this for the outcome",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    },
+    "/external/v1/orders/{id}/cards": {
+      "get": {
+        "operationId": "ExternalApiController_giftCardCodes",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The card codes of a delivered gift card order (never cached)",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": {
+                    "orderId": "8a3b20d7-bd9e-4c90-9746-b208abc6cd80",
+                    "cards": [
+                      {
+                        "number": 1,
+                        "code": "XXXX-XXXX-XXXX-XXXX",
+                        "serial": "SN0001"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request: the request is malformed or a value is invalid (see details.errors).",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_400": {
+                    "summary": "id is not a UUID",
+                    "value": {
+                      "message": "Validation failed (uuid v 4 is expected)",
+                      "error": "Bad Request",
+                      "statusCode": 400,
+                      "path": "/external/v1/orders/not-a-uuid/cards",
+                      "requestId": "aa9b071e-dea4-4aa4-baea-22c0f3f43555"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders/{id}/cards",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/orders/{id}/cards",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/orders/{id}/cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders/{id}/cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders/{id}/cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders/{id}/cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the orders:read scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "orders:read",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/orders/{id}/cards",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The resource does not exist, or is not yours.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "MARKETPLACE404_ORDER_NOT_FOUND": {
+                    "summary": "Unknown order, not yours, or not a gift card order",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "Marketplace order c7ec1e28-f1af-45e9-9b72-3938d92a64cb not found",
+                      "errorCode": "MARKETPLACE404_ORDER_NOT_FOUND",
+                      "timestamp": "2026-11-12T10:43:39.128Z",
+                      "details": {
+                        "id": "c7ec1e28-f1af-45e9-9b72-3938d92a64cb"
+                      },
+                      "path": "/external/v1/orders/c7ec1e28-f1af-45e9-9b72-3938d92a64cb",
+                      "requestId": "41c389c0-bb1b-4bde-a1f1-6879590a5743"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "The request conflicts with the current state (retry with a new clientRef, or refresh).",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "GIFTCARD409_CARDS_NOT_AVAILABLE": {
+                    "summary": "Cards not delivered yet",
+                    "value": {
+                      "statusCode": 409,
+                      "message": "Gift cards are not available for this order",
+                      "errorCode": "GIFTCARD409_CARDS_NOT_AVAILABLE",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/orders/{id}/cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/orders/{id}/cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/orders/{id}/cards",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "The card codes of a delivered gift card order",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "EsimCustomerDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Ahmed Benali"
+          },
+          "email": {
+            "type": "string",
+            "example": "customer@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+213555123456"
+          }
+        }
+      },
+      "CreateOrderDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "mobile",
+              "gift_card",
+              "esim",
+              "bill"
+            ],
+            "default": "mobile",
+            "description": "What to buy. Each type takes its own fields: mobile → operator, planCode, phoneNumber, amount; gift_card → productId, typeId, quantity; esim → packageId, quantity, days, customer; bill → lookupId, billIds, expectedTotal."
+          },
+          "clientRef": {
+            "type": "string",
+            "description": "Caller-generated idempotency key, unique per account. Re-sending the same reference returns the original order.",
+            "maxLength": 100
+          },
+          "operator": {
+            "type": "string",
+            "enum": [
+              "djezzy",
+              "ooredoo",
+              "mobilis"
+            ],
+            "example": "ooredoo",
+            "description": "mobile only"
+          },
+          "planCode": {
+            "type": "string",
+            "example": "PREPAID_OOREDOO",
+            "description": "mobile only"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "0512345678",
+            "description": "mobile only: Algerian MSISDN"
+          },
+          "amount": {
+            "type": "number",
+            "example": 500,
+            "description": "mobile only: face value in DZD; required for free-amount plans"
+          },
+          "productId": {
+            "type": "string",
+            "example": "507f1f77bcf86cd799439011",
+            "description": "gift_card only: from GET /products/gift-cards"
+          },
+          "typeId": {
+            "type": "string",
+            "example": "type_001",
+            "description": "gift_card only: the denomination, from GET /products/gift-cards/{productId}"
+          },
+          "quantity": {
+            "type": "number",
+            "example": 1,
+            "description": "gift_card and esim: number of cards or eSIMs (a gift card denomination states its own maxQuantity)"
+          },
+          "packageId": {
+            "type": "number",
+            "example": 123,
+            "description": "esim only: from GET /products/esim/{locationCode}"
+          },
+          "days": {
+            "type": "number",
+            "example": 7,
+            "description": "esim only: days, for unlimited plans"
+          },
+          "customer": {
+            "description": "esim only: send the QR code to this customer by email and/or SMS. Leave it out to deliver the QR code yourself from the order.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/EsimCustomerDto"
+              }
+            ]
+          },
+          "lookupId": {
+            "type": "string",
+            "example": "68cdf0a2b7c1e4d5f6a7b8c9",
+            "description": "bill only: the lookupId of a ready POST /bills/lookups"
+          },
+          "billIds": {
+            "description": "bill only: the bill ids chosen on the ready lookup (SEAAL may take several)",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expectedTotal": {
+            "type": "number",
+            "example": 1030,
+            "description": "bill only: the total the lookup answered for these bills (amounts + fees), in DZD. A different total answers 409: look the bills up again"
+          }
+        },
+        "required": [
+          "clientRef"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "api-key": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-api-key",
+        "description": "Partner API key (external routes only)"
+      }
+    }
+  }
+}

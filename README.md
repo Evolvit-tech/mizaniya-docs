@@ -1,55 +1,29 @@
-# Mintlify Starter Kit
+# Mizaniya Pay docs
 
-Use the starter kit to get your docs deployed and ready to customize.
+Two Mintlify sites in one repository:
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+| Folder | Site | Audience | Reference |
+|---|---|---|---|
+| `partner/` | Partner API | Public | `openapi/partner.json`: the `/external/v1` routes |
+| `internal/` | Internal docs | Team only (protected) | `openapi/pos.json` and `openapi/admin.json`: both backends |
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+The `openapi/` files are generated from the backends by `npm run openapi:export` and arrive through sync PRs. Don't edit them by hand.
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+## Preview locally
 
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
+You need Node 22 (`nvm use`). The Mintlify CLI supports Node 20.17 or later, except Node 25.
 
 ```bash
-npx skills add https://mintlify.com/docs
+npm i -g mint@4.3.34
 ```
 
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
+Run each site in its own terminal, from the repository root:
 
-See the guides for [Claude Code](https://www.mintlify.com/docs/guides/claude-code), [Codex](https://www.mintlify.com/docs/guides/codex), [Cursor](https://www.mintlify.com/docs/guides/cursor), and [Devin Desktop](https://www.mintlify.com/docs/guides/devin-desktop) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
-npm i -g mint
+```bash
+(cd partner  && mint dev)               # http://localhost:3000
+(cd internal && mint dev --port 3001)   # http://localhost:3001
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+Before opening a PR, run these in the site folder: `mint format`, `mint validate`, `mint broken-links`, `mint a11y`.
 
-```
-mint dev
-```
-
-View your local preview at `http://localhost:3000`.
-
-## Publishing changes
-
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow and writing rules.

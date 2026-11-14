@@ -1,0 +1,26 @@
+# Checks both sites on every pull request. Branch protection on `main`
+# requires both jobs: "validate (partner)" and "validate (internal)".
+name: validate
+
+on: [pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        site: [partner, internal]
+    defaults:
+      run:
+        working-directory: ${{ matrix.site }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc }
+      - run: npm i -g mint@4.3.34   # keep in step with the version used locally
+      - run: mint validate        # config, navigation and OpenAPI files
+      - run: mint broken-links    # internal links
+      - run: mint a11y            # color contrast and image alt text

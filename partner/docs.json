@@ -1,0 +1,24 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Mizaniya Pay Partner API",
+  "colors": { "primary": "#1F4E67" },
+  "favicon": "/favicon.svg",
+  "logo": { "light": "/logo/light.svg", "dark": "/logo/dark.svg" },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          { "group": "Get started", "pages": ["index", "quickstart", "authentication"] },
+          {
+            "group": "Products",
+            "pages": ["guides/top-up", "guides/gift-cards", "guides/esim", "guides/commissions"]
+          },
+          { "group": "Reference", "pages": ["errors"] }
+        ]
+      },
+      { "tab": "API Reference", "openapi": "openapi/partner.json" }
+    ]
+  }
+}
