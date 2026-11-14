@@ -8,6 +8,7 @@
   "paths": {
     "/external/v1/me": {
       "get": {
+        "description": "Call this first to check a key: it needs no scope. Shows the key environment (sandbox keys start with mzp_test_, live keys with mzp_live_), its scopes and its expiry.",
         "operationId": "ExternalApiController_me",
         "parameters": [],
         "responses": {
@@ -167,6 +168,7 @@
     },
     "/external/v1/balance": {
       "get": {
+        "description": "balance is what the account can spend on orders, in DZD. profit is what its sales have earned so far. Needs the balance:read scope.",
         "operationId": "ExternalApiController_balance",
         "parameters": [],
         "responses": {
@@ -344,6 +346,7 @@
     },
     "/external/v1/products": {
       "get": {
+        "description": "The plans you can sell with POST /orders (type mobile), grouped by operator. A plan with amount has a fixed value; a plan with minAmount and maxAmount takes the amount you send. Filter with operator. Needs catalog:read.",
         "operationId": "ExternalApiController_products",
         "parameters": [
           {
@@ -582,6 +585,7 @@
     },
     "/external/v1/products/gift-cards": {
       "get": {
+        "description": "Every gift card product you can sell. Get its denominations, with your price and the stock, from GET /products/gift-cards/{productId}. Needs catalog:read.",
         "operationId": "ExternalApiController_giftCards",
         "parameters": [],
         "responses": {
@@ -787,13 +791,16 @@
     },
     "/external/v1/products/gift-cards/{productId}": {
       "get": {
+        "description": "Each denomination (type) has the price your account pays and how many you can buy in one order (maxQuantity). Order one with POST /orders (type gift_card, productId, typeId, quantity). Needs catalog:read.",
         "operationId": "ExternalApiController_giftCard",
         "parameters": [
           {
             "name": "productId",
             "required": true,
             "in": "path",
+            "description": "From GET /products/gift-cards",
             "schema": {
+              "example": "60d83c9851bed7424c20bc49",
               "type": "string"
             }
           }
@@ -1022,6 +1029,7 @@
     },
     "/external/v1/products/esim": {
       "get": {
+        "description": "The destinations with eSIM packages. Use a code with GET /products/esim/{locationCode} to list its packages. Filter by name or code with search. Needs catalog:read.",
         "operationId": "ExternalApiController_esimLocations",
         "parameters": [
           {
@@ -1240,13 +1248,16 @@
     },
     "/external/v1/products/esim/packages/{packageId}/price": {
       "get": {
+        "description": "The total for quantity eSIMs of this package (and days, for unlimited plans), before you order it. Needs catalog:read.",
         "operationId": "ExternalApiController_esimPrice",
         "parameters": [
           {
             "name": "packageId",
             "required": true,
             "in": "path",
+            "description": "From GET /products/esim/{locationCode}",
             "schema": {
+              "example": 101,
               "type": "number"
             }
           },
@@ -1535,13 +1546,16 @@
     },
     "/external/v1/products/esim/{locationCode}": {
       "get": {
+        "description": "The packages of one destination, with data volume, duration, networks and your selling price. Order one with POST /orders (type esim, packageId, quantity). Needs catalog:read.",
         "operationId": "ExternalApiController_esimPackages",
         "parameters": [
           {
             "name": "locationCode",
             "required": true,
             "in": "path",
+            "description": "From GET /products/esim",
             "schema": {
+              "example": "TR",
               "type": "string"
             }
           }
@@ -1794,6 +1808,7 @@
     },
     "/external/v1/orders": {
       "post": {
+        "description": "One route for every product: type selects the fields to send (mobile when omitted). The price is taken from your balance. clientRef is your own unique reference: sending the same clientRef again returns the original order instead of selling twice, so retry with it after a timeout. Most orders finish later: poll GET /orders/{id} for the outcome. Needs sell:create.",
         "operationId": "ExternalApiController_createOrder",
         "parameters": [],
         "requestBody": {
@@ -2256,6 +2271,7 @@
         ]
       },
       "get": {
+        "description": "Newest first, 20 per page by default (at most 100). Without type, mobile and gift card orders are listed together; eSIM orders are listed only with type=esim. Needs orders:read.",
         "operationId": "ExternalApiController_listOrders",
         "parameters": [
           {
@@ -2627,13 +2643,16 @@
     },
     "/external/v1/orders/{id}": {
       "get": {
+        "description": "An open order is checked with the provider on each read, so polling this route is enough to see it finish. Mobile and gift card orders: read outcome; processing and verifying are still open, success, failed and cancelled are final, and failureCode says why one failed. eSIM orders are open while status is pending or provisioning. Needs orders:read.",
         "operationId": "ExternalApiController_getOrder",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "The order id returned by POST /orders",
             "schema": {
+              "example": "8a3b20d7-bd9e-4c90-9746-b208abc6cd80",
               "type": "string"
             }
           }
@@ -2891,13 +2910,16 @@
     },
     "/external/v1/orders/{id}/cards": {
       "get": {
+        "description": "Card codes are never part of the order itself: read them here once the order is fulfilled. Each read is recorded, and the answer is sent with Cache-Control: no-store; do not cache or log the codes. Needs orders:read.",
         "operationId": "ExternalApiController_giftCardCodes",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "The id of a fulfilled gift card order",
             "schema": {
+              "example": "aa3149f6-b6ed-4b0d-9e7c-2977a814504c",
               "type": "string"
             }
           }

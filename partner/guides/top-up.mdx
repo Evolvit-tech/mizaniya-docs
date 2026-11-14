@@ -3,6 +3,151 @@ title: "Mobile top-ups"
 description: "Find a plan and top up a Djezzy, Ooredoo or Mobilis number."
 ---
 
-<Note>
-  Draft page. Content is written in task 2.3 of the docs plan.
-</Note>
+A top-up credits a customer's prepaid line. You need a key with `catalog:read`, `sell:create` and `orders:read`.
+
+<Steps>
+  <Step title="List the plans">
+    `GET /external/v1/products` returns the plans of every operator, or of one with `operator` (`djezzy`, `ooredoo` or `mobilis`).
+
+    <CodeGroup>
+
+    ```bash curl
+    curl "$MIZANIYA_API_URL/external/v1/products?operator=ooredoo" \
+      -H "x-api-key: $MIZANIYA_API_KEY"
+    ```
+
+    ```js Node.js
+    const url = new URL('/external/v1/products', process.env.MIZANIYA_API_URL);
+    url.searchParams.set('operator', 'ooredoo');
+    const res = await fetch(url, { headers: { 'x-api-key': process.env.MIZANIYA_API_KEY } });
+    const { data } = await res.json();
+    ```
+
+    </CodeGroup>
+
+    ```json Response
+    {
+      "statusCode": 200,
+      "message": "success",
+      "data": [
+        {
+          "operator": "ooredoo",
+          "products": [
+            { "code": "PREPAID_OOREDOO", "name": "📱 PREPAID | عادي", "minAmount": 100, "maxAmount": 5000, "available": true }
+          ]
+        }
+      ]
+    }
+    ```
+
+    - A plan with `amount` has a fixed value.
+    - A plan with `minAmount` and `maxAmount` takes the amount you choose, in DZD, within those bounds.
+    - Sell only plans with `available: true`.
+  </Step>
+  <Step title="Place the order">
+    Send `POST /external/v1/orders`. For a top-up, `type` is `mobile` (or left out).
+
+    | Field | Required | Meaning |
+    | --- | --- | --- |
+    | `clientRef` | yes | Your own unique reference for this sale, up to 100 characters. |
+    | `operator` | yes | `djezzy`, `ooredoo` or `mobilis`. |
+    | `planCode` | yes | The plan's `code`. |
+    | `phoneNumber` | yes | The number to top up: 10 digits starting with `05`, `06` or `07`. |
+    | `amount` | for free-amount plans | The face value in DZD. |
+
+    <CodeGroup>
+
+    ```bash curl
+    curl -X POST "$MIZANIYA_API_URL/external/v1/orders" \
+      -H "x-api-key: $MIZANIYA_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "type": "mobile",
+        "clientRef": "shop-order-1001",
+        "operator": "ooredoo",
+        "planCode": "PREPAID_OOREDOO",
+        "phoneNumber": "0512345678",
+        "amount": 500
+      }'
+    ```
+
+    ```js Node.js
+    const res = await fetch(`${process.env.MIZANIYA_API_URL}/external/v1/orders`, {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.MIZANIYA_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'mobile',
+        clientRef: 'shop-order-1001',
+        operator: 'ooredoo',
+        planCode: 'PREPAID_OOREDOO',
+        phoneNumber: '0512345678',
+        amount: 500,
+      }),
+    });
+    const { data: order } = await res.json();
+    ```
+
+    </CodeGroup>
+
+    The price is taken from your balance when the order is accepted. Keep the order `id`.
+
+    <Note>
+      Use one `clientRef` per sale, such as your own order number. Sending the same `clientRef` again returns the first order instead of topping up twice, so you can retry safely after a timeout.
+    </Note>
+  </Step>
+  <Step title="Follow the order">
+    Poll `GET /external/v1/orders/{id}` until `outcome` is final. Each read checks the order with the operator, so polling is enough.
+
+    | `outcome` | Meaning |
+    | --- | --- |
+    | `processing` | The operator hasn't answered yet. Poll again. |
+    | `verifying` | The order took longer than expected and Mizaniya Pay is checking it by hand. The money stays held. Poll again later. |
+    | `success` | The line was topped up. |
+    | `failed` | The top-up didn't happen and the amount is refunded. `failureCode` says why. |
+    | `cancelled` | Mizaniya Pay cancelled the order after delivery and refunded it. |
+
+    <CodeGroup>
+
+    ```bash curl
+    curl "$MIZANIYA_API_URL/external/v1/orders/$ORDER_ID" \
+      -H "x-api-key: $MIZANIYA_API_KEY"
+    ```
+
+    ```js Node.js
+    async function waitForOrder(id) {
+      for (let attempt = 0; attempt < 20; attempt++) {
+        const res = await fetch(`${process.env.MIZANIYA_API_URL}/external/v1/orders/${id}`, {
+          headers: { 'x-api-key': process.env.MIZANIYA_API_KEY },
+        });
+        const { data } = await res.json();
+        if (!['processing', 'verifying'].includes(data.outcome)) return data;
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+      throw new Error(`Order ${id} is still open; check it again later`);
+    }
+    ```
+
+    </CodeGroup>
+  </Step>
+</Steps>
+
+## Why a top-up failed
+
+When `outcome` is `failed`, `failureCode` gives the reason:
+
+| `failureCode` | Meaning |
+| --- | --- |
+| `invalid_number` | The number can't be topped up. |
+| `out_of_stock` | The plan isn't available right now. |
+| `rejected` | The operator refused the top-up. |
+| `service_unavailable` | Mizaniya Pay can't sell this operator right now. Try again later. |
+| `refunded_by_operator` | The operator accepted, then gave up and refunded. |
+| `rejected_by_admin` | Mizaniya Pay rejected the order after checking it. |
+| `cancelled_by_admin` | Mizaniya Pay cancelled the order. |
+
+## Your earnings
+
+`earnedMargin` on each order is what the sale earned your account, in DZD. It adds up in `profit` on `GET /external/v1/balance`. See [Commissions](/guides/commissions).

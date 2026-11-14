@@ -1,8 +1,40 @@
 ---
 title: "Commissions"
-description: "How your earnings are set on top-ups and digital cards."
+description: "How your earnings are set on top-ups, gift cards and eSIMs."
 ---
 
+{/* Source: Mizaniya_Commission_Rules.pdf, models 1 and 2. Model 3 (bill payments) is out of scope. Awaiting client sign-off on what partners see (plan blocker B10). */}
+
+Your account sits in the Mizaniya Pay network like any point of sale. What you earn on a sale depends on the kind of product. In every case, **no account can give the level below it better terms than it gets itself**, so you never earn less than zero on a sale.
+
+## Mobile top-ups: a share of the commission
+
+The operator pays a commission on each top-up, as a percentage of the amount. The customer pays the normal face value: the commission is already included in it.
+
+Your rate is set by the account above you, from 0% up to its own rate. On each top-up you sell, you earn your full rate.
+
+**Example.** Your rate is 1% and you sell a 1,000 DZD top-up. You earn 1% × 1,000 = **10 DZD**, which is added to your profit.
+
 <Note>
-  Draft page. Content is written in task 2.4 of the docs plan.
+  If the operator changes its commission, every rate in the network changes in the same proportion, so you keep the same share of it. At a lower operator rate, your 1% could become 0.8%.
 </Note>
+
+## Gift cards and eSIMs: cost plus markup
+
+The provider sells each card or eSIM at a set cost price. Each account above you adds its markup, as a fixed amount in DZD or as a percentage of its own cost, and the result is **your cost price**: the `price` you see in the catalog.
+
+You then sell at your own price. What you earn is the difference between your selling price and your cost.
+
+**Example.** The provider sells a card for 2,000 DZD. The admin adds 500 DZD, and the master above you adds 10% (250 DZD). Your cost is **2,750 DZD**. If you sell the card at 3,000 DZD, you earn 250 DZD.
+
+<Note>
+  A fixed markup stays the same amount when the provider changes its price. A percentage markup is recalculated on the new cost. In the example, if the provider raises the card to 2,400 DZD, your cost becomes 3,190 DZD.
+</Note>
+
+## Where you see your earnings
+
+| Where | What |
+| --- | --- |
+| `earnedMargin` on each order | What that sale earned your account, in DZD. |
+| `profit` on `GET /external/v1/balance` | What your sales have earned so far. |
+| `price` in the gift card and eSIM catalogs | Your cost price, all markups above you included. |

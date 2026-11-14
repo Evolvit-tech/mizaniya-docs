@@ -3,6 +3,109 @@ title: "Errors"
 description: "The error body every route returns, and what each error code means."
 ---
 
+Every error has the same JSON body. Read `errorCode` to decide what to do: it is stable, while `message` is for people and may change.
+
+```json
+{
+  "statusCode": 409,
+  "message": "This client reference was already used for a different sale",
+  "errorCode": "MARKETPLACE409_CLIENT_REF_CONFLICT",
+  "timestamp": "2026-11-12T10:43:39.145Z",
+  "path": "/external/v1/orders",
+  "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `statusCode` | The HTTP status. |
+| `message` | A short explanation in English. |
+| `errorCode` | The machine-readable code, listed below. |
+| `timestamp` | When the error happened (UTC). |
+| `details` | Extra data, on some errors only (see below). |
+| `path` | The route you called. |
+| `requestId` | Quote it when you contact Mizaniya Pay about a request. |
+
 <Note>
-  Draft page. Content is written in task 2.2 of the docs plan.
+  A malformed path parameter, such as an order id that isn't a UUID or a `packageId` that isn't a number, answers `400` without an `errorCode`: read `message`.
 </Note>
+
+## Validation errors
+
+A body or query that doesn't match the API answers `400` with `VALIDATION400`. `details.errors` lists every field at fault:
+
+```json
+{
+  "statusCode": 400,
+  "message": "Dto validation error",
+  "errorCode": "VALIDATION400",
+  "details": {
+    "errors": [
+      { "field": "phoneNumber", "errors": ["phoneNumber must match ^0[567][0-9]{8}$"] },
+      { "field": "customer.email", "errors": ["email must be an email"] }
+    ]
+  }
+}
+```
+
+Nested fields are named by their path, such as `customer.email`.
+
+## Error codes
+
+### 400: the request is wrong
+
+| Code | Meaning | What to do |
+| --- | --- | --- |
+| `VALIDATION400` | A field is missing or invalid. | Fix the fields in `details.errors`. |
+| `GIFTCARD400_INVALID_QUANTITY` | The quantity isn't allowed for this denomination. | Re-read the denomination and stay within its `maxQuantity`. |
+| `ONECLICK400_REJECTED` | The provider refused the operation. | Don't retry as is; check the request. |
+
+### 401: the key can't be used
+
+`API_KEY401_MISSING`, `API_KEY401_INVALID`, `API_KEY401_EXPIRED`, `API_KEY401_REVOKED`, `API_KEY401_BLOCKED` and `API_KEY401_WRONG_ENVIRONMENT`. See [When a key stops working](/authentication#when-a-key-stops-working).
+
+### 403: not allowed
+
+| Code | Meaning | What to do |
+| --- | --- | --- |
+| `API_KEY403_INSUFFICIENT_SCOPE` | The key lacks the scope of this route. | Use a key with the scope. See [Scopes](/authentication#scopes). |
+| `MARKETPLACE403_INSUFFICIENT_BALANCE` | Your balance can't pay for this order. | Top up your Mizaniya Pay balance. |
+
+### 404: not found
+
+| Code | Meaning |
+| --- | --- |
+| `MARKETPLACE404_ORDER_NOT_FOUND` | No order with this id on your account. |
+| `GIFTCARD404_PRODUCT_NOT_FOUND` | The gift card product doesn't exist or isn't on sale. |
+| `GIFTCARD404_TYPE_NOT_FOUND` | The denomination (`typeId`) doesn't belong to this product. |
+| `GOSIM404_LOCATION_NOT_FOUND` | Unknown eSIM destination code. |
+| `GOSIM404_PACKAGE_NOT_FOUND` | Unknown eSIM package. |
+
+### 409: conflicts with the current state
+
+| Code | Meaning | What to do |
+| --- | --- | --- |
+| `MARKETPLACE409_CLIENT_REF_CONFLICT` | This `clientRef` was already used for a different sale. | Use a new `clientRef` for a new sale. |
+| `GIFTCARD409_OUT_OF_STOCK` | Not enough cards in stock for this quantity. | Re-read the denomination and lower the quantity. |
+| `GIFTCARD409_CARDS_NOT_AVAILABLE` | The order's cards aren't delivered yet. | Poll the order until it is fulfilled, then ask again. |
+
+### 429: too many requests
+
+`API_KEY429_RATE_LIMITED`: wait `details.retryAfter` seconds. See [Rate limits](/authentication#rate-limits).
+
+### 5xx: a failure on our side or a provider's
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| 500 | none | Unexpected error. Retry later and quote the `requestId` if it persists. |
+| 502 | `ONECLICK502_UPSTREAM` | The gift card provider failed. |
+| 502 | `GOSIM502_UPSTREAM` | The eSIM provider failed. |
+| 503 | `ONECLICK403_INSUFFICIENT_FLOAT` | The provider can't take this sale right now. Try again later. |
+
+## Retrying safely
+
+Every `POST /orders` carries your own `clientRef`. If a request times out or fails with a 5xx, **send it again with the same `clientRef`**: if the first one got through, you get the original order back instead of a second sale.
+
+<Warning>
+  Never retry a sale with a new `clientRef` until you know the first one failed. Check it with `GET /orders` first.
+</Warning>
