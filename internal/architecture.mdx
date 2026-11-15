@@ -128,7 +128,7 @@ Each API serves its own reference:
 
 In `production` these routes ask for a basic-auth login (`SWAGGER_USER`, `SWAGGER_PASS`). In any other environment they are open.
 
-The **POS API** and **Admin API** tabs of this site are built from the same OpenAPI documents, exported by `npm run openapi:export` in each backend.
+The **POS API** and **Admin API** tabs of this site are built from the same OpenAPI documents. Each backend exports its own with `npm run openapi:export`, on the `chore/openapi-export` branch until that is merged.
 
 ## Deployment (staging)
 

@@ -1,8 +1,108 @@
 ---
 title: "Shared database"
-description: "The shared entities and migrations, and how both backends use them."
+description: "The entities, enums and migrations both backends compile in, and how to change the schema."
 ---
 
-<Note>
-  Draft page. Content is written in task 3.3 of the docs plan.
-</Note>
+`Mizaniya-Pay-POS-Shared-Database` holds the database schema both APIs use: TypeORM entities, enums, constants and migrations. It has no app and no tests of its own.
+
+## Layout
+
+| Folder | Holds | On `staging` |
+| --- | --- | --- |
+| `src/entities` | TypeORM entities, one file per table | 65 files |
+| `src/enums` | Enums used by entities and both APIs | 29 files |
+| `src/migrations` | Every migration, for both APIs | 59 files |
+| `src/constants`, `src/types` | Shared constants and types |  |
+
+## How the backends use it
+
+**It is a git submodule, not an npm package.** Each backend has it at `./Mizaniya-Pay-POS-Shared-Database` and imports it through the `@shared-db/*` path alias (`tsconfig.json`):
+
+```ts
+import { PosAccount } from '@shared-db/entities';
+import { PosStatus } from '@shared-db/enums';
+```
+
+**The code is compiled into each backend.** `nest build` emits the shared sources into `dist/Mizaniya-Pay-POS-Shared-Database/src`. Each backend's `src/common/database/db.ts` points TypeORM at the entities and migrations there: the `.js` files when running from `dist`, the `.ts` files when running through the TypeORM CLI.
+
+**Each backend pins one commit.** The pin is part of the backend's own commit, so a backend always builds against the schema it was written for. On `staging` both pin `03ecea4`.
+
+<Warning>
+  Keep the two pins in step. Both APIs write to the **same database**: if one pins newer entities than the other, one of them reads columns that the other does not know.
+</Warning>
+
+### The submodule URL
+
+`.gitmodules` points at the client's copy, `github.com/MizaniyaPay/Mizaniya-Pay-POS-Shared-Database`, where new commits may not exist yet. The working copy is **`Evolvit-tech/Mizaniya-Pay-POS-Shared-Database`**:
+
+- The staging workflows read the pinned commit and check it out from `Evolvit-tech` with a deploy key (`SHARED_DB_DEPLOY_KEY`).
+- The [local kit](/local-setup#the-shared-database-submodule) points the submodule at the sibling folder.
+
+On a plain clone, point the submodule at `Evolvit-tech` yourself:
+
+```bash
+git submodule init
+git config submodule.Mizaniya-Pay-POS-Shared-Database.url git@github.com:Evolvit-tech/Mizaniya-Pay-POS-Shared-Database.git
+git submodule update
+```
+
+## Change the schema
+
+<Steps>
+  <Step title="Change the entities">
+    In the shared-database repository, on a branch from `staging`, change or add the entity and enum files.
+  </Step>
+  <Step title="Write the migration">
+    From a backend whose submodule is on your shared-database branch, generate or create the migration (see below). The scripts write it into the submodule, under `src/migrations`.
+  </Step>
+  <Step title="Run it locally">
+    `npm run migration:run`, then check the app. `npm run migration:revert` undoes the last one.
+  </Step>
+  <Step title="Commit the shared database">
+    Commit the entities and the migration in the shared-database repository, and push.
+  </Step>
+  <Step title="Bump the pin in both backends">
+    In each backend, check out the new commit in the submodule and commit the pin with the feature that needs it.
+  </Step>
+</Steps>
+
+### Migration scripts
+
+Run them from a backend folder. Both backends have the same scripts.
+
+| Script | What it does |
+| --- | --- |
+| `npm run migration:generate --name=AddFoo` | Compares the entities with the database and writes `auto-MGAddFoo` |
+| `npm run migration:new --name=AddFoo` | Writes an empty `manual-MGAddFoo` to fill in by hand |
+| `npm run migration:run` | Runs the pending migrations |
+| `npm run migration:show` | Lists the migrations and which have run |
+| `npm run migration:revert` | Reverts the last migration |
+
+On Windows `cmd`, use the `-win` variants (`migration:generate-win`, `migration:new-win`).
+
+**Naming.** `auto-MG…` files are generated; `manual-MG…` files are written by hand. On `staging` there are 10 generated and 49 hand-written migrations.
+
+<Warning>
+  The admin backend's `migration:new` script ends with a stray `%` (`manual-MG$npm_config_name%`), so the file name gets a `%` in it. Use the POS backend's script, or rename the file.
+</Warning>
+
+**Postgres enums.** Enum columns, such as `access_type_permissions.permission`, are Postgres enum types. Adding a value to a TypeScript enum used by a column needs a migration that alters the type.
+
+## Migrations in deployment
+
+**Only the POS deploy runs migrations.** The staging POS workflow runs `migration:run` from the new image before restarting the service. The admin deploy does not.
+
+So a schema change reaches staging on the **next POS deploy**. If only the admin backend needs it, push the pin bump to the POS backend too.
+
+The super admin is created by the migration `manual-MGSuperAdmin`, which reads `SAPWD` from the environment. See [Environment variables](/environment#accounts-and-tokens).
+
+## Seeds
+
+The POS backend has a seed runner, `src/common/database/seed/runner.ts`:
+
+```bash
+npm run seed         # against .env
+npm run seed:test    # against .env.test
+```
+
+The local kit runs the migrations and the seeds for you.

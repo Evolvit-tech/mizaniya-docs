@@ -1,8 +1,93 @@
 ---
 title: "Permissions"
-description: "Access types and how the admin API checks permissions."
+description: "How admin access types, permissions and menus work, and how to protect a new route."
 ---
 
-<Note>
-  Draft page. Content is written in task 3.3 of the docs plan.
-</Note>
+Admin access is controlled by **access types**: roles such as "finance officer" or "viewer". Each admin has exactly one. The POS side has no access types; it uses `master` and `agent` roles instead (see [POS backend](/backend/pos#authentication)).
+
+## The model
+
+All three tables live in the [shared database](/backend/shared-database).
+
+| Entity | Table | Holds |
+| --- | --- | --- |
+| `AccessType` | `access_type` | `title` (unique, stored lower-case) and `isAbsolute` |
+| `AccessTypePermissions` | `access_type_permissions` | `permission`, `hasView`, `hasEdit`; one row per permission |
+| `AccessTypeMenuPermission` | `access_type_menu_permissions` | `menuKey`, `isVisible`; one row per menu entry |
+
+**`isAbsolute`** marks a super-admin type: it passes every permission check and sees every menu.
+
+## The permissions
+
+The list is the `PERMISSIONS` enum in `Mizaniya-Pay-POS-Shared-Database/src/enums/permissions.enum.ts`. Each one has a **view** and an **edit** level.
+
+| Permission | Guards | Routes |
+| --- | --- | --- |
+| `adminManagement` | Admins, access types | 16 |
+| `onboardingPOSManagement` | Sign-up requests | 6 |
+| `approvedPOSManagement` | POS accounts, commissions, prices, partner keys | 62 |
+| `operationsManagement` | Operations, POS top-ups, distributor wallet | 20 |
+| `financeDashboard` | Dashboard, providers, provider accounts, some price reports | 27 |
+| `configurations` | No route yet | 0 |
+| `marketingManagement` | No route yet | 0 |
+| `supportAndComplainsManagement` | No route yet | 0 |
+
+Counts are for `staging`. Only absolute access types see `adminManagement` in the permissions catalog (`GET /access-types/permissions-catalog`), so a non-absolute admin cannot grant it.
+
+## How a request is checked
+
+`AccessTypePermissionsGuard` (`src/access-type-permissions/guards/access-type-permissions.guard.ts`) is a global guard. `CrmAccessTypePermissionModule` registers it right after `AuthModule`, so the JWT guard has already put the admin on the request.
+
+<Steps>
+  <Step title="Public route">
+    A route marked `@Public()` passes.
+  </Step>
+  <Step title="No permission declared">
+    A route without `@RequiredPermission` **passes for any logged-in admin**.
+  </Step>
+  <Step title="Load the access type">
+    The guard loads the access type of the **active** admin. None found: `AccessTypeNotFound`.
+  </Step>
+  <Step title="Absolute">
+    An absolute access type passes.
+  </Step>
+  <Step title="Check the level">
+    For `'view'` the row needs `hasView`; for `'edit'` it needs `hasEdit`. Otherwise the request gets 403.
+  </Step>
+</Steps>
+
+<Warning>
+  **Forgetting `@RequiredPermission` opens the route to every admin.** The guard allows by default. Today only 5 routes rely on this, all on purpose: `GET /access-types/me`, `POST /auth/logout`, `GET /users/profile`, `POST /users/change-password` and `POST /users/picture`.
+</Warning>
+
+**`'edit'` does not include `'view'`.** The guard checks the one flag the route asks for, and saving an access type stores both flags as sent. An access type with `hasEdit` and no `hasView` can change data it cannot list.
+
+## Protect a new route
+
+```ts
+import { PERMISSIONS } from '@shared-db/enums/permissions.enum';
+import { RequiredPermission } from '@/access-type-permissions/decorators/access-type-permission.decorator';
+
+@Get(':id')
+@RequiredPermission(PERMISSIONS.approvedPOSManagement, 'view')
+async getById(@Param('id', new ParseUUIDPipe()) id: string) {
+  // ...
+}
+```
+
+- Use `'view'` for reads and `'edit'` for anything that changes data.
+- Put the decorator on each route. On the controller class it also works, and applies to every route in it.
+- **A new permission** means a new value in the `PERMISSIONS` enum, which is a Postgres enum column. That needs a migration in the shared database. See [Shared database](/backend/shared-database#change-the-schema).
+
+## Menus
+
+Menu entries are **only what the sidebar shows**. They protect nothing; the permission checks above do.
+
+- The admin web app calls `GET /access-types/me` after login.
+- An absolute access type, or one that has never saved its menu switches, gets `menus: null`: the full sidebar.
+- Otherwise it gets the list of `menuKey`s whose `isVisible` is true.
+- The menu keys are defined in the admin web app, in `src/access-types/data/menu-permissions.data.ts` and `src/common/data/nav.data.tsx`.
+
+## Managing access types
+
+Admins with `adminManagement` manage access types under `/access-types`: create (`POST`), list (`GET`), read (`GET /:id`), change (`PATCH /:id`) and delete (`DELETE /:id`). Reads need `'view'`; the rest need `'edit'`.
