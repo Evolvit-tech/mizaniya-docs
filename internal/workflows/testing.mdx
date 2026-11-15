@@ -1,8 +1,93 @@
 ---
 title: "Testing"
-description: "Unit, end-to-end and browser tests, and when to run them."
+description: "The unit, end-to-end and UI test suites in each repository, and how to run them safely."
 ---
 
-<Note>
-  Draft page. Content is written in task 3.5 of the docs plan.
-</Note>
+## At a glance
+
+| Repository | Unit | End-to-end | Runner |
+| --- | --- | --- | --- |
+| POS backend | `npm test` (93 spec files) | `npm run test:e2e` (17 files) | Vitest |
+| Admin backend | `npm test` (43 spec files) | `npm run test:e2e` (6 files) | **Jest** |
+| Market web app | `npm test` | `npm run test:e2e` | Vitest, Playwright |
+| Admin web app | `npm test` | None | Vitest |
+| Core library | `npm test` | None | Vitest |
+| Shared database | None | None |  |
+
+Counts are for `staging`. No repository runs its tests in CI: the backends run their unit tests in the `pre-push` hook, and nothing runs the e2e suites automatically.
+
+## Backends
+
+### Unit tests
+
+```bash
+npm test
+```
+
+- **POS:** Vitest with its default pattern, so every `*.spec.ts` file; the `*.e2e-spec.ts` files are left out.
+- **Admin:** Jest with `ts-jest`, every `*.spec.ts` file.
+
+**Both setups load `.env.test`** (`test/setup-env.ts`, with `override: true`), unit tests included. Keep a `.env.test` in place.
+
+### End-to-end tests
+
+The e2e suites start the real app against a real Postgres and Redis.
+
+<Warning>
+  **The e2e suites empty the database.** Their helpers (`test/common/helpers/clear-database.ts` in POS, `test/helper/clear-database.helper.ts` in admin) run `TRUNCATE … CASCADE` on **every table** of the database in `.env.test`. Point `.env.test` at a database that holds nothing you need. Never at staging, production or your local kit's database.
+</Warning>
+
+<Steps>
+  <Step title="Create a test database">
+    An empty Postgres database of your own, for example `mizaniya_test`, and a Redis.
+  </Step>
+  <Step title="Write .env.test">
+    Copy `.env.test.sample` and fill in the database, Redis, `SAPWD` and the other values. `.env.test` overrides `.env` during tests.
+  </Step>
+  <Step title="Run the migrations">
+    POS: `npm run migration:test:run`. Admin: `npm run migration:run-test`.
+  </Step>
+  <Step title="Run the suite">
+    `npm run test:e2e`. The POS suite runs its files one at a time (`--no-file-parallelism`); the admin suite uses `--runInBand`.
+  </Step>
+</Steps>
+
+**When to run them:** before pushing any change that touches the database, wallets, orders or commissions.
+
+In the POS e2e suite, `MARKETPLACE_CONFIRM_WAIT_SECONDS` defaults to `0`, so sales answer right after the send. `order-status-flow.e2e-spec.ts` covers the wait itself.
+
+### Other scripts (POS)
+
+| Script | What |
+| --- | --- |
+| `npm run test:cov` | Unit tests with coverage |
+| `npm run smoke:bills-sandbox` | Calls the OneClick bills **sandbox**; needs the sandbox key |
+| `npm run commissions:verify` | Checks the commission data, against `.env.development.local` |
+
+## Web apps and core library
+
+```bash
+npm test                   # Vitest with jsdom, src/**/*.test.{ts,tsx}
+```
+
+In the market app and the core library, `npm test` starts **watch mode**; use `npx vitest run` for a single run. In the admin app, `npm test` runs once.
+
+### Playwright (market app)
+
+```bash
+npx playwright install     # once, to download the browsers
+npm run test:e2e           # starts npm run dev on port 5174, then runs tests/
+npm run test:e2e:ui        # the same, in Playwright's UI
+```
+
+The tests drive the dev server, so they need a POS API at `VITE_API_URL`. Use the [local kit](/local-setup).
+
+## Manual checks
+
+Before you push, check the change **on the production build**, the way it is deployed: `./local-dev.sh build`, then use the app on the kit's ports. `npm run start:dev` or `npm run dev` is fine while coding.
+
+## Known issues
+
+| Test | Problem | Status |
+| --- | --- | --- |
+| POS `src/health/health.throttle.spec.ts` | Times out on its 10 s hook, which blocks the `pre-push` hook | Fails on plain `staging` too; not caused by your change |

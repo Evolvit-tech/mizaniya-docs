@@ -1,8 +1,56 @@
 ---
 title: "Mobile app"
-description: "Building the market app for Android and iOS with Capacitor."
+description: "How the market web app becomes an Android and iOS app with Capacitor."
 ---
 
-<Note>
-  Draft page. Content is written in task 3.4 of the docs plan.
-</Note>
+The mobile app is the [market web app](/frontend/market) wrapped with **Capacitor 6.2.1**. There is no separate mobile codebase: the native app loads the web build from `dist/`.
+
+<Warning>
+  **The native projects are not on `staging`.** `android/` and `ios/` were added in `fe99e9d` and removed in `a308f2a` ("leave the native android and ios projects out of this delivery"). They still exist on `origin/feat/phase-11-mobile-app` and `origin/feat/mobile-app`. Ask whoever builds the app today which branch and steps they use; this page will be updated with them.
+</Warning>
+
+## Configuration
+
+`capacitor.config.ts` in the market repository:
+
+| Setting | Value | Meaning |
+| --- | --- | --- |
+| `appId` | `dz.mizaniyapay.market` | Android package name and iOS bundle ID |
+| `appName` | `Mizaniyapay Market` | Name under the app icon |
+| `webDir` | `dist` | The web build the native app loads |
+| `plugins.CapacitorHttp.enabled` | `true` | HTTP goes through the native layer |
+
+**Why `CapacitorHttp`:** it patches `fetch` and XHR so requests go out natively, not from the WebView's origin. The POS API's CORS list therefore does not need the app's origin.
+
+**Dependencies** (`package.json`): `@capacitor/core`, `@capacitor/android` and `@capacitor/ios` 6.2.1, and `@capacitor/cli` 6.2.1 as a dev dependency. There are **no `cap` scripts** in `package.json`.
+
+On the mobile branches, the Android project targets SDK 34 with a minimum of SDK 22 (`android/variables.gradle`).
+
+## Build the app
+
+These are the standard Capacitor 6 steps, from a branch that has the native projects. They have not been confirmed by the person who builds the app.
+
+<Steps>
+  <Step title="Build the web app">
+    Set `VITE_API_URL` to the **full HTTPS address** of the POS API, then `npm run build`. The address is baked into the build.
+  </Step>
+  <Step title="Copy it into the native projects">
+    `npx cap sync` copies `dist/` and the plugin configuration into `android/` and `ios/`.
+  </Step>
+  <Step title="Open and build">
+    `npx cap open android` opens Android Studio; `npx cap open ios` opens Xcode (macOS only). Build, sign and run from there.
+  </Step>
+</Steps>
+
+Run `npx cap sync` again after every web build; the native app does not see `dist/` changes on its own.
+
+## Things that behave differently in the app
+
+- **Device ID.** The web app keeps its `x-device-id` in `localStorage`. Reinstalling the app, or clearing its data, makes it a new device that asks for a phone code again.
+- **Service worker.** The PWA setup in `vite.config.ts` is built into `dist/` too. Inside Capacitor, the app already loads its files locally.
+
+## Open questions
+
+- Which branch and steps produce the published app?
+- Where are the signing keys kept, and who holds them?
+- Is the app on the Play Store or the App Store yet, and under which account?

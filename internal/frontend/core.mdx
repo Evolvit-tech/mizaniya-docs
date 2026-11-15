@@ -1,8 +1,74 @@
 ---
 title: "Core library"
-description: "The shared UI library and theme used by both web apps."
+description: "The shared UI components, HTTP helpers and theme both web apps build on."
 ---
 
-<Note>
-  Draft page. Content is written in task 3.4 of the docs plan.
-</Note>
+`mizaniya-pay-frontend-market-core` is a React library, published to no registry. Both web apps install it from the sibling folder as `@MizaniyaPay/frontend-market-core` (`file:../mizaniya-pay-frontend-market-core`).
+
+**Version:** 0.2.0. **Peer dependencies:** `react` and `react-dom` 19.
+
+## What it exports
+
+From `src/index.ts`:
+
+| Export | Folder |
+| --- | --- |
+| UI components: `ui`, `layout`, `common` | `src/components` |
+| Hooks | `src/hooks` |
+| Helpers | `src/lib` |
+| HTTP client helpers and location APIs | `src/http` |
+| Map components (Leaflet) | `src/map` |
+| Shared types | `src/types` |
+| Providers | `src/providers` |
+| `react-hook-form` re-exports (`useForm`, `Controller`, …) and `DateRange` |  |
+
+## The theme
+
+The colour tokens are CSS variables in `src/index.css` (`:root` and `.dark`). The brand colour is `--primary`, which is `--primary-600` (`#1F4E67`).
+
+The build writes the styles to `dist/frontend-market-core.css`. Each app imports that file and tells Tailwind to scan the built library for class names:
+
+```css
+@import "@MizaniyaPay/frontend-market-core/dist/frontend-market-core.css";
+@source "../node_modules/@MizaniyaPay/frontend-market-core/dist/**";
+```
+
+## Build
+
+```bash
+npm ci                     # its prepare script runs the build
+npm run build              # tsc -b, then vite build in library mode
+```
+
+The output in `dist/`: `index.es.js`, `index.cjs.js`, `index.d.ts` and the CSS file. React and React DOM are left out of the bundle.
+
+## Use it from an app
+
+<Steps>
+  <Step title="Put it next to the app">
+    Clone it beside the app, named exactly `mizaniya-pay-frontend-market-core`.
+  </Step>
+  <Step title="Build it">
+    `npm ci` in the library folder. This builds `dist/`.
+  </Step>
+  <Step title="Install the app">
+    `npm ci` in the app. npm links the library folder into the app's `node_modules`.
+  </Step>
+</Steps>
+
+**After changing the library**, run `npm run build` in it. The app reads `dist/`, not `src/`, so an unbuilt change does not show. Restart the admin app's dev server, which does not watch the library.
+
+## Work on it alone
+
+```bash
+npm run dev                # playground on http://localhost:5175 (src/App.tsx)
+npm test                   # Vitest with jsdom
+npm run lint
+```
+
+## Releasing a change
+
+There is no CI and no version publishing. A change reaches staging when an app is deployed:
+
+- each app's staging workflow checks out the library's **`staging`** branch and builds it into the image;
+- so **merge the library change to `staging` before** the app change that needs it, or the app deploy builds against the old library.

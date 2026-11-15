@@ -1,8 +1,88 @@
 ---
 title: "Pull requests"
-description: "Commit messages and pull request rules."
+description: "Commit messages, git hooks, and how a change gets reviewed and merged."
 ---
 
+## How changes land today
+
+Recent work reaches `staging` mostly as **direct pushes**, not pull requests: since 1 November, `staging` in the POS backend and the market app has no merge commits. Earlier history has GitHub pull requests (`Merge pull request #… from MizaniyaPay/…`).
+
+**No repository runs checks on pull requests.** The only checks are the git hooks below, on your own machine, in the two backends.
+
 <Note>
-  Draft page. Content is written in task 3.5 of the docs plan.
+  The team's PR description format is still to be agreed. The template at the bottom of this page is a **proposal**, pending the tech lead's approval.
 </Note>
+
+## Commit messages
+
+The two backends enforce [Conventional Commits](https://www.conventionalcommits.org/) with commitlint (`commitlint.config.js`):
+
+```text
+feat(gift-cards): let a master set a card price per agent
+fix(account): show the commission engine's rates as my rates
+```
+
+**Allowed types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `core`, `revert`, `hotfix`, `db`, `merge`, `release`, `env`, `config`, `lint`, `deps`.
+
+| Rule | POS backend | Admin backend |
+| --- | --- | --- |
+| Type and subject required | Yes | Yes |
+| No full stop at the end | Yes | Yes |
+| Maximum header length | 80 | 72 |
+| Lower-case type | Not checked | Yes |
+| Subject in sentence or lower case | Not checked | Yes |
+
+**Write to the stricter rules** (72 characters, lower case) so a message is valid in both.
+
+The web apps, the core library and the shared database have no commit rules. Use the same format there anyway.
+
+## Git hooks
+
+The two backends install husky hooks on `npm ci` (the `prepare` script):
+
+| Hook | Runs | Fails when |
+| --- | --- | --- |
+| `pre-commit` | Branch check, then `npm run lint` | You are on `main`, `master` or `dev`, or ESLint finds an error it cannot fix |
+| `commit-msg` | `commitlint` | The message breaks the rules above |
+| `pre-push` | `npm run test`, then `npm run build` | A unit test fails, or the build fails |
+
+<Warning>
+  `npm run lint` runs `eslint --fix`, which **changes files after you staged them**. The commit keeps the version you staged. Check `git status` after committing, and commit the fixes.
+</Warning>
+
+**The pre-push run is slow** because it runs the whole unit suite and a build. Don't skip it with `--no-verify` unless the failure is a known flaky test (see [Testing](/workflows/testing#known-issues)), and say so in the PR.
+
+## Before you open a PR
+
+- [ ] The branch is from `staging` and up to date with it.
+- [ ] Backend: `npm test` and `npm run build` pass (the pre-push hook checks both).
+- [ ] Backend, if it touches the database or money: `npm run test:e2e` passes against **your own** test database.
+- [ ] Web app: `npm run build` passes. The staging image skips the type check, so this is the only one.
+- [ ] Schema change: the shared-database commit is pushed, and both backends pin it.
+- [ ] New environment variable: added to `.env.sample` and to [Environment variables](/environment).
+- [ ] Checked on the production build, with the [local kit](/local-setup) (`./local-dev.sh build`).
+
+## Proposed PR description
+
+```markdown
+## What
+One or two sentences: what changes for the user or the API.
+
+## Why
+The problem or the request this answers. Link the issue or task.
+
+## How to test
+Steps a reviewer can follow on the local kit, with the account and data to use.
+
+## Related
+Branches with the same name in other repositories, shared-database commit, migration.
+
+## Checklist
+- [ ] Unit tests
+- [ ] e2e tests (database or money changes)
+- [ ] New env variables documented
+```
+
+## Docs changes
+
+Changes to these docs follow the rules in the docs repository's `CONTRIBUTING.md`: one `docs/<topic>` branch, a PR to `main` with a preview screenshot, and a review by another team member.

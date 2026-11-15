@@ -1,8 +1,88 @@
 ---
 title: "Market web app"
-description: "The POS web app: stack, local run, build and deploy."
+description: "The web app POS sellers use, and the source of the mobile app."
 ---
 
+`mizaniya-pay-frontend-market` is the app masters and agents use to sell, top up, withdraw and manage their network. It calls the [POS API](/backend/pos). The same code is wrapped into the [mobile app](/frontend/mobile).
+
+**Stack:** React 19, Vite 7, Tailwind 4, React Router 7, TanStack Query, Zustand, react-hook-form with zod, i18next. Shared components come from the [core library](/frontend/core).
+
+## Folders
+
+Code is grouped by feature under `src/`:
+
+| Folder | Feature |
+| --- | --- |
+| `auth`, `create-account` | Login, phone code, sign-up |
+| `home`, `dashboard` | Home screen and figures |
+| `marketplace` | Selling top-ups, internet, gift cards, eSIM, bills |
+| `topup`, `withdrawal`, `transactions` | Wallet money in and out, history |
+| `agents` | A master's agents |
+| `commissions` | Commission rates |
+| `api-keys` | Partner API keys and the in-app API docs |
+| `profile` | The seller's own account |
+| `common` | HTTP client, layout, shared helpers, test setup |
+
+## Run it
+
+The app needs the core library **built**, in a sibling folder named `mizaniya-pay-frontend-market-core`. See [Core library](/frontend/core#use-it-from-an-app).
+
+```bash
+cp .env.example .env       # then set VITE_API_URL
+npm ci
+npm run dev                # http://localhost:5174
+```
+
+**Port 5174 is fixed** (`strictPort`). If it is taken, Vite fails instead of moving to another port, because the API's CORS list only knows fixed origins. Add `http://localhost:5174` to the POS backend's `CONFIGS_CORS_ORIGINS`.
+
+For a full stack with a database and fake services, use the [local kit](/local-setup): it serves this app's production build on port 4182.
+
+## Environment
+
+| Variable | Purpose |
+| --- | --- |
+| `VITE_API_URL` | POS API address |
+| `VITE_VTPE_ENABLED` | `false` hides V-TPE payment; keep it in step with the backend's `VTPE_ENABLED` |
+| `VITE_DEV_LOGIN_EMAIL`, `VITE_DEV_LOGIN_PASSWORD` | Prefill the login form, dev builds only |
+
+They are read **at build time**. See [Environment variables](/environment#market-web-app).
+
+## How it talks to the API
+
+The axios client is in `src/common/apis/http-client.ts`.
+
+- **Base URL:** `VITE_API_URL`.
+- **Device ID:** on first use the app creates an ID, keeps it in `localStorage` under `x-device-id`, and sends it as the `x-device-id` header on every request. The POS backend refuses session routes without it. Clearing site data makes the app a new device, which asks for a phone code again.
+
+## Languages
+
+English, French and Arabic, from `public/locales/{en,fr,ar}.json`. Fallback: English.
+
+## Offline and install
+
+The app is a PWA (`vite-plugin-pwa`, `registerType: "autoUpdate"`). The app shell is precached; country flags in `public/flags` are fetched on demand. `npm run sync:flags` copies the flag SVGs from `flag-icons`.
+
 <Note>
-  Draft page. Content is written in task 3.4 of the docs plan.
+  The main bundle is over workbox's 2 MiB default, so `vite.config.ts` raises the precache limit to 3 MiB. If the bundle passes 3 MiB, the build stops precaching it. Splitting the bundle is the real fix.
 </Note>
+
+## Tests
+
+| Command | What |
+| --- | --- |
+| `npm test` | Unit tests, Vitest with jsdom (`src/**/*.test.{ts,tsx}`) |
+| `npm run test:e2e` | Playwright, in `tests/`; starts `npm run dev` itself |
+| `npm run lint` | ESLint |
+
+## Build and deploy
+
+```bash
+npm run build              # tsc -b, then vite build, into dist/
+npm run preview            # serve dist/ locally
+```
+
+**Staging:** every push to `staging` builds a Docker image (`deploy/staging/Dockerfile`), with the core library from its own `staging` branch, then serves `dist/` with nginx. See [Architecture](/architecture#deployment-staging).
+
+<Warning>
+  The staging image runs `npx vite build`, **without `tsc -b`**. A type error does not stop a staging deploy. Run `npm run build` before you push.
+</Warning>
