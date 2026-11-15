@@ -1,8 +1,191 @@
 ---
 title: "Local setup"
-description: "Run the whole platform on your own machine with the local dev kit."
+description: "Run the whole platform on your machine with the local kit."
 ---
 
+The **local kit** (`local-dev-kit/`) runs both backends, both web apps, and a local copy of every outside service they talk to. You need no shared database, mail account, SMS gateway or OneClick key, and nothing you do locally can reach a real customer or move real money.
+
+**Use the kit instead of:** the staging database, a personal or company mail account, a real OneClick key, the shared default password, or manual SQL to create an admin.
+
+<Warning>
+  **The `local-test` branch is missing on GitHub** for `Mizaniya-Pay-POS-Backend` and `mizaniya-pay-frontend-market`. `setup` switches every repository to `local-test`, so on a fresh machine it stops with "has no branch local-test". Until the branch is pushed, ask the tech lead which branch to use, and pass it as `MIZANIYA_BRANCH=<branch> ./local-dev.sh setup`.
+</Warning>
+
+## Prerequisites
+
+| Need | Detail |
+| --- | --- |
+| Linux, or Windows with WSL2 | The script uses `setsid` and `ss`; macOS needs small changes |
+| Docker | Your user must run `docker` without `sudo` |
+| Node 22 or newer | Through nvm |
+| Python 3 | For the fake services and the fake data; no extra packages |
+| SSH access to `Evolvit-tech` | Missing repositories are cloned from `git@github.com:Evolvit-tech/…` |
+| About 6 GB of free disk | For `node_modules`, the builds and the Docker images |
+| Free ports | 465, 587, 3101, 3110, 4010, 4020, 4181, 4182, 5440, 6390, 8026, 8027, 9000, 9180 |
+
+## Folder layout
+
+Put the six repositories side by side, with the kit in the same folder. **The names must be exact**: the web apps load the core library from `../mizaniya-pay-frontend-market-core`.
+
+```text
+mizaniya/
+├── local-dev-kit/
+├── Mizaniya-Pay-POS-Shared-Database/
+├── Mizaniya-Pay-POS-Backend/
+├── Mizaniya-Pay-Admin-POS-Backend/
+├── mizaniya-pay-frontend-market-core/
+├── mizaniya-pay-frontend-market-admin/
+└── mizaniya-pay-frontend-market/
+```
+
+If your repositories live somewhere else, set `MIZANIYA_ROOT=/path/to/that/folder`. Missing repositories are cloned for you.
+
+## First run
+
+```bash
+cd mizaniya/local-dev-kit
+./local-dev.sh setup
+```
+
+The first run takes about 10 to 15 minutes:
+
+<Steps>
+  <Step title="Check and prepare">
+    Checks the prerequisites and creates `env/pos.env` and `env/admin.env` from the examples.
+  </Step>
+  <Step title="Get the code">
+    Clones any missing repository, switches all six to `local-test`, and points the shared-database submodule at the commit each backend pins.
+  </Step>
+  <Step title="Build">
+    Starts the Docker containers, runs `npm ci`, and builds everything.
+  </Step>
+  <Step title="Create the data">
+    Creates an empty database, runs every migration and the seeds, and creates the first super admin.
+  </Step>
+  <Step title="Start and fill">
+    Starts all the apps, then creates fake accounts, sales and requests through the real APIs.
+  </Step>
+</Steps>
+
+**Done when** `./local-dev.sh status` shows every service as `up`.
+
+**Your logins** are written to `tools/credentials.json`: admins, POS masters and agents, and a partner API key. Read them there; they are not copied into these docs.
+
+## What runs where
+
+Everything listens on `127.0.0.1` only.
+
+| Service | Address | What it is |
+| --- | --- | --- |
+| Admin web app | `http://127.0.0.1:4181` | Production build, served by `vite preview` |
+| Market web app | `http://127.0.0.1:4182` | Production build, served by `vite preview` |
+| Admin API | `http://127.0.0.1:3110` | `node dist/src/main` |
+| POS API | `http://127.0.0.1:3101` | `node dist/src/main` |
+| Partner API | `http://127.0.0.1:3101/external/v1` | Part of the POS API |
+| Admin inbox | `http://127.0.0.1:8027` | Mailpit: admin login codes and admin emails |
+| POS inbox | `http://127.0.0.1:8026` | Mailpit: approval, password and eSIM emails |
+| Postgres | `127.0.0.1:5440` | Docker; database `mizaniya_lt` |
+| Redis | `127.0.0.1:6390` | Docker |
+| S3 | `http://localhost:9000` | SeaweedFS in Docker; holds uploaded ID cards |
+| Ooredoo simulator | `http://127.0.0.1:4020` | `test/simulators/ooredoo.mjs` in the POS repository |
+| GoSIM stub | `http://127.0.0.1:4010` | `tools/gosim-stub.py` |
+| Static QR stub | `http://127.0.0.1:9180` | `tools/qr-stub.py`; answers 204 |
+| OneClick, SMS | cut off | Calls fail at once; nothing leaves your machine |
+
+## Every day
+
+```bash
+./local-dev.sh start       # start everything as last built (a few seconds)
+./local-dev.sh status      # what is up
+./local-dev.sh logs pos    # follow a log: pos | admin | web-admin | web-market | sim | gosim | qr
+./local-dev.sh stop        # stop the apps; the database and containers are kept
+```
+
+**After you change code or switch branches**, rebuild. `start` reuses the last build.
+
+```bash
+./local-dev.sh build       # npm ci where the lock file changed, rebuild, migrate, restart
+```
+
+**Other commands:**
+
+```bash
+./local-dev.sh checkout feat/my-branch   # switch all six repositories to one branch
+./local-dev.sh reset-data                # empty the database and recreate the fake data
+./local-dev.sh down                      # stop everything and delete the containers (database lost)
+```
+
+## Codes and emails
+
+**Read every code from the inbox; never guess one.** The only exception is the POS phone code.
+
+| What | Where |
+| --- | --- |
+| Admin login code | Admin inbox; a random 6-digit code, valid 5 minutes |
+| POS approval email and set-password link | POS inbox |
+| POS forgot-password code | POS inbox |
+| Admin password reset | Admin inbox |
+| eSIM QR email and receipt | POS inbox |
+| POS phone code | Always `000000` outside `production`; no SMS is sent (`src/auth/otp/otp.service.ts`) |
+
+**A new POS account** starts with the default password (`CONFIGS_POS_DEFAULT_PASSWORD`). After its first login, enter `000000`, then choose a real password. The fake accounts from `setup` have already done this.
+
+<Warning>
+  Do not set `NODE_ENV=production` locally to get real phone codes. The SMS would go to a real gateway, and production mode changes other behaviour.
+</Warning>
+
+## The outside services
+
+**Ooredoo** goes through the simulator. Numbers ending in `01` to `07` trigger the failure cases: not eligible, refused, no answer, server error, postpaid, over the 500 DZD limit, and pending. Any other ending succeeds. See its state at `http://127.0.0.1:4020/__sim/state`.
+
 <Note>
-  Draft page. Content is written in task 3.2 of the docs plan.
+  The POS backend only sends Ooredoo sales to the simulator when its code has the direct Ooredoo link (`OOREDOO_DIRECT_ENABLED`). On `staging` that link is not merged, so Ooredoo goes through OneClick and **fails locally** like Djezzy and Mobilis.
 </Note>
+
+**Djezzy, Mobilis, Algérie Télécom and gift cards** use OneClick, which is cut off, so these sales fail on purpose. If you must test OneClick, ask the tech lead for the **sandbox** key and set `ONECLICK_BASE_URL` and `ONECLICK_API_KEY` in `env/pos.env`. **Never use a live key.**
+
+**eSIM** goes through the GoSIM stub. It sells packages for Turkey (101 to 103), France (201 to 203), Europe (301 to 303) and Global (401 to 403). Package `999` is refused, to test the error path. Orders are listed at `http://127.0.0.1:4010/__stub/orders`.
+
+**Uploads** (ID cards) go to the local S3. The script creates both buckets.
+
+## Your environment files
+
+- `env/pos.env` and `env/admin.env` are yours to change. Git ignores them.
+- They are loaded **on top of** each repository's own `.env`, so you never need to edit the repositories' `.env`.
+- Every secret in them is a local fake. Never put a production database, mail account, live OneClick key or production JWT secret in them.
+- The web apps need no env file: the script builds them against the local APIs.
+
+See [Environment variables](/environment) for what each variable does.
+
+## The shared-database submodule
+
+The kit points each backend's `Mizaniya-Pay-POS-Shared-Database` submodule at the **sibling folder**, not at GitHub. `.gitmodules` names the client's copy (`github.com/MizaniyaPay/…`), where new commits may not exist yet.
+
+To update the submodule by hand with that setup, allow local file transport:
+
+```bash
+git -c protocol.file.allow=always submodule update Mizaniya-Pay-POS-Shared-Database
+```
+
+## Rules for the team
+
+1. Run against your **own local database** only. Never point a local backend at staging or production.
+2. Read codes and emails in Mailpit. Do not configure a real mail account.
+3. Keep OneClick cut off, or on the **sandbox** key at most.
+4. Check your change **on the production build** (`./local-dev.sh build`) before you push. `npm run start:dev` is fine while coding.
+5. Before you push a backend change, run its unit tests. If it touches the database or the money flow, also run the e2e suite. See [Testing](/workflows/testing).
+6. If you add an environment variable, add it to the repository's `.env.sample` and tell whoever maintains the kit.
+
+## Troubleshooting
+
+| Symptom | Fix |
+| --- | --- |
+| `Out of diskspace` or npm errors | `npm cache clean --force`, then `docker builder prune -f` |
+| A port is already in use | `./local-dev.sh stop`; `ss -ltnp \| grep <port>` shows which program holds it |
+| `/health` answers 429 | Normal: it allows 2 calls a minute; the app is up |
+| No admin login code arrives | Open the admin inbox; check `./local-dev.sh logs admin` |
+| Old behaviour after `git pull` | `./local-dev.sh build` |
+| Migration error after switching branches | `./local-dev.sh reset-data` |
+| `shared database commit … not found` | `git -C ../Mizaniya-Pay-POS-Shared-Database fetch origin`, then `./local-dev.sh checkout` |
+| `has no branch local-test` | See the warning at the top of this page |
+| Anything else | `./local-dev.sh logs <app>`; build, install and seed logs are in `run/` |
