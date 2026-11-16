@@ -67,7 +67,7 @@ The first run takes about 10 to 15 minutes:
 
 **Done when** `./local-dev.sh status` shows every service as `up`. On `staging` the Ooredoo simulator shows `n/a`, which is expected.
 
-**Your logins** are written to `tools/credentials.json`: admins, POS masters and agents, and a partner API key. Read them there; they are not copied into these docs.
+**Your logins** are written to `tools/credentials.json`: admins, POS masters and agents, and the partner `LtPartner` with its API key. `LtPartner` is an ordinary POS account: it created its key in the app, as partners do on `staging`. Read them there; they are not copied into these docs.
 
 ## What runs where
 
@@ -185,5 +185,7 @@ git -c protocol.file.allow=always submodule update Mizaniya-Pay-POS-Shared-Datab
 | Old behaviour after `git pull` | `./local-dev.sh build` |
 | Migration error after switching branches | `./local-dev.sh reset-data` |
 | `shared database commit … not found` | `git -C ../Mizaniya-Pay-POS-Shared-Database fetch origin`, then `./local-dev.sh checkout` |
+| `could not check out the Mizaniya-Pay-POS-Shared-Database submodule` | Check that `../Mizaniya-Pay-POS-Shared-Database` exists and is a git clone, then `./local-dev.sh checkout` |
+| An inbox or the database does not answer, but `docker ps` shows it up | `./local-dev.sh start`: the kit recreates a container that lost its network or its ports (its data is test data) |
 | `has no branch <name>` | The branch is not on GitHub; check the name, or run `./local-dev.sh checkout staging` |
 | Anything else | `./local-dev.sh logs <app>`; build, install and seed logs are in `run/` |
