@@ -42,7 +42,8 @@ For a full stack with a database and fake services, use the [local kit](/local-s
 | Variable | Purpose |
 | --- | --- |
 | `VITE_API_URL` | POS API address |
-| `VITE_VTPE_ENABLED` | `false` hides V-TPE payment; keep it in step with the backend's `VTPE_ENABLED` |
+| `VITE_VTPE_ENABLED` | `false` hides V-TPE everywhere; keep it in step with the backend's `VTPE_ENABLED` |
+| `VITE_VTPE_AS_PAYMENT` | `true` also offers V-TPE as a sale's payment method (gift cards, bills, eSIM); off by default, and not passed by the staging image |
 | `VITE_DEV_LOGIN_EMAIL`, `VITE_DEV_LOGIN_PASSWORD` | Prefill the login form, dev builds only |
 
 They are read **at build time**. See [Environment variables](/environment#market-web-app).
@@ -70,7 +71,8 @@ The app is a PWA (`vite-plugin-pwa`, `registerType: "autoUpdate"`). The app shel
 
 | Command | What |
 | --- | --- |
-| `npm test` | Unit tests, Vitest with jsdom (`src/**/*.test.{ts,tsx}`) |
+| `npm test` | Unit tests, Vitest with jsdom (`src/**/*.test.{ts,tsx}`), in watch mode |
+| `npm run test:watch` | The same, explicitly watching |
 | `npm run test:e2e` | Playwright, in `tests/`; starts `npm run dev` itself |
 | `npm run lint` | ESLint |
 

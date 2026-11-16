@@ -235,11 +235,12 @@ The web apps read `VITE_*` variables **at build time**. Changing one means rebui
 | Variable | Required | Example | Purpose |
 | --- | --- | --- | --- |
 | `VITE_API_URL` | Yes | `http://127.0.0.1:3101` | POS API address |
-| `VITE_VTPE_ENABLED` | No | `true` | `false` hides V-TPE payment; on when unset |
+| `VITE_VTPE_ENABLED` | No | `true` | `false` hides V-TPE everywhere: its window in other services and the payment method; on when unset |
+| `VITE_VTPE_AS_PAYMENT` | No | `false` | `true` also offers V-TPE as the payment method of gift cards, bills and eSIM; off when unset |
 | `VITE_DEV_LOGIN_EMAIL` | No | `master@example.test` | Prefills the login form in dev builds only |
 | `VITE_DEV_LOGIN_PASSWORD` | No | `Example#2026` | Prefills the login form in dev builds only |
 
-Keep `VITE_VTPE_ENABLED` in step with the POS backend's `VTPE_ENABLED`.
+Keep `VITE_VTPE_ENABLED` in step with the POS backend's `VTPE_ENABLED`. `VITE_VTPE_AS_PAYMENT` only works while V-TPE itself is on. The staging image does not pass it, so on staging every sale is paid in cash and V-TPE is used from its own window.
 
 ### Admin web app
 

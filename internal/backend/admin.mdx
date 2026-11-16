@@ -39,6 +39,8 @@ description: "The admin API: modules, login, and how it shares data with the POS
 
 See [Permissions](/backend/permissions) for how the permission column is enforced.
 
+**Folders without routes:** `src/access-type` (loads an admin's access type for the guard), `src/access-type-permissions` (the `@RequiredPermission` decorator and the global guard), `src/common` (config, email, token keys, logging, the static QR client) and `src/assets` (the logo used in emails).
+
 ## Login
 
 An admin logs in in two steps. Every route except those marked `@Public()` needs a valid access token (global `JwtAuthGuard`).
@@ -79,6 +81,23 @@ npm run build && npm run start:prod
 ```
 
 Tests use **Jest**, not Vitest like the POS backend: `npm test` and `npm run test:e2e`. See [Testing](/workflows/testing).
+
+### All scripts
+
+| Script | What it does |
+| --- | --- |
+| `start`, `start:dev`, `start:debug` | Run from source; `start:dev` watches, `start:debug` also opens the debugger |
+| `build`, `start:prod` | Compile to `dist/`, then run `node dist/src/main` |
+| `lint`, `format` | ESLint with `--fix`, Prettier on `src/` and `test/` |
+| `test`, `test:watch`, `test:cov`, `test:debug` | Jest unit tests: once, watching, with coverage, with the debugger |
+| `test:e2e` | End-to-end suite against `.env.test`; see [Testing](/workflows/testing) |
+| `typeorm` | The TypeORM CLI against `.env` |
+| `migration:new`, `migration:generate` and their `-win` variants | Create a migration in the shared database; see [Shared database](/backend/shared-database#migration-scripts) |
+| `migration:run`, `migration:show`, `migration:revert` | Run, list or revert migrations against `.env` |
+| `migration:run-test`, `migration:show-test`, `migration:revert-test` | The same against `.env.test` |
+| `prepare` | Install the husky git hooks; runs on `npm ci` |
+
+The admin backend has no seed script. The only seed runner is the POS backend's (`npm run seed`), on the database both APIs share.
 
 ## API docs
 

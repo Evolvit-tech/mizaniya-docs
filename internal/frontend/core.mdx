@@ -62,9 +62,14 @@ The output in `dist/`: `index.es.js`, `index.cjs.js`, `index.d.ts` and the CSS f
 
 ```bash
 npm run dev                # playground on http://localhost:5175 (src/App.tsx)
-npm test                   # Vitest with jsdom
+npm test                   # Vitest with jsdom, in watch mode (also: npm run test:watch)
 npm run lint
+npm run preview            # serve the playground build
 ```
+
+`npm ci` runs the `prepare` script, which builds the library.
+
+**Folders that are not exported:** `src/pages` holds the playground's example pages (one per component), `src/data` its navigation, `src/test` the test setup, `src/constants` shared constants used inside the library, and `src/assets` its images.
 
 ## Releasing a change
 

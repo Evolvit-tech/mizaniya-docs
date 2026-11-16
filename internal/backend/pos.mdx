@@ -30,6 +30,8 @@ Registered in `src/app.module.ts`:
 | `HealthModule` | `src/health` | `/health`, limited to 2 calls a minute per client |
 | `CommonModule` | `src/common` | Config, email, SMS, OneClick and static QR clients, token keys, logging |
 
+**Other folders:** `src/partner-api-tracking` records every partner API call (a middleware and a recorder, imported by `ExternalApiModule`) and deletes them after `PARTNER_API_REQUEST_RETENTION_DAYS`; the admin app reads them. `src/assets` holds the logo used in emails.
+
 **Providers** are modules of their own, imported by `MarketplaceModule`: `src/djezzy`, `src/ooredoo`, `src/mobilis`, `src/algerie-telecom`, `src/gift-cards` and `src/bills`. Each one implements `TopupProvider` (`src/marketplace/contracts`) and is listed in the `TOPUP_PROVIDER` factory in `marketplace.module.ts`.
 
 **To add a provider:** create its module, import it in `MarketplaceModule`, and append its service to the `inject` list of `TOPUP_PROVIDER`. `ProviderRegistry` picks it up by `slug`, product name and category.
@@ -119,6 +121,25 @@ npm run build && npm run start:prod
 ```
 
 The app reads `.env` and validates it at startup. For a full local stack, use the [local kit](/local-setup).
+
+### All scripts
+
+| Script | What it does |
+| --- | --- |
+| `start`, `start:dev`, `start:debug` | Run from source; `start:dev` watches, `start:debug` also opens the debugger |
+| `build`, `start:prod` | Compile to `dist/`, then run `node dist/src/main` |
+| `lint`, `format` | ESLint with `--fix`, Prettier on `src/` and `test/` |
+| `test`, `test:watch`, `test:cov`, `test:debug` | Vitest unit tests: once, watching, with coverage, with the debugger |
+| `test:e2e`, `test:e2e:debug` | End-to-end suite against `.env.test`; see [Testing](/workflows/testing) |
+| `smoke:bills-sandbox` | Calls the OneClick bills sandbox; needs the sandbox key |
+| `typeorm`, `typeorm:test` | The TypeORM CLI against `.env` or `.env.test` |
+| `migration:new`, `migration:generate` and their `-win` variants | Create a migration in the shared database; see [Shared database](/backend/shared-database#migration-scripts) |
+| `migration:run`, `migration:show`, `migration:revert` | Run, list or revert migrations against `.env` |
+| `migration:test:run`, `migration:show-test` | Run or list migrations against `.env.test` |
+| `seed`, `seed:test` | Seed the database from `src/common/database/seed/runner.ts` |
+| `sync:margins` | Run the catalog margin sync once (the daily 04:00 job), against `.env.development.local` |
+| `commissions:verify` | Compare the old split and the commission engine on recent orders, against `.env.development.local` |
+| `prepare` | Install the husky git hooks; runs on `npm ci` |
 
 ## API docs
 
