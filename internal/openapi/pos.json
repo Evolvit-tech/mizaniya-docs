@@ -1797,6 +1797,271 @@
         ]
       }
     },
+    "/commissions/me": {
+      "get": {
+        "description": "Every product with the rate this account receives, the margin its parent keeps on it, and the margin it keeps on each agent.",
+        "operationId": "CommissionsController_mine",
+        "parameters": [
+          {
+            "name": "x-device-id",
+            "in": "header",
+            "description": "enter current device id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "you must provide a device id on each request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Device ID is required for device registration",
+                  "errorCode": "DEVICE400"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "My commissions (Master only)",
+        "tags": [
+          "Commissions"
+        ]
+      }
+    },
+    "/commissions/agents/{agentId}": {
+      "get": {
+        "description": "For each product: the master rate, the margin the master keeps on the agent, and the agent rate.",
+        "operationId": "CommissionsController_agent",
+        "parameters": [
+          {
+            "name": "x-device-id",
+            "in": "header",
+            "description": "enter current device id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
+            }
+          },
+          {
+            "name": "agentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "you must provide a device id on each request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Device ID is required for device registration",
+                  "errorCode": "DEVICE400"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "An agent commissions (Master only)",
+        "tags": [
+          "Commissions"
+        ]
+      }
+    },
+    "/commissions/agents/{agentId}/{productId}": {
+      "patch": {
+        "description": "The agent rate follows from the master rate minus this margin. The margin may not exceed the master rate.",
+        "operationId": "CommissionsController_setAgentMargin",
+        "parameters": [
+          {
+            "name": "x-device-id",
+            "in": "header",
+            "description": "enter current device id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
+            }
+          },
+          {
+            "name": "agentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetMarginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "you must provide a device id on each request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Device ID is required for device registration",
+                  "errorCode": "DEVICE400"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Set the margin kept on an agent (Master only)",
+        "tags": [
+          "Commissions"
+        ]
+      }
+    },
+    "/commissions/defaults": {
+      "get": {
+        "operationId": "CommissionsController_defaults",
+        "parameters": [
+          {
+            "name": "x-device-id",
+            "in": "header",
+            "description": "enter current device id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "you must provide a device id on each request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Device ID is required for device registration",
+                  "errorCode": "DEVICE400"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Default margin for new agents (Master only)",
+        "tags": [
+          "Commissions"
+        ]
+      }
+    },
+    "/commissions/defaults/{productId}": {
+      "patch": {
+        "operationId": "CommissionsController_setDefault",
+        "parameters": [
+          {
+            "name": "x-device-id",
+            "in": "header",
+            "description": "enter current device id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
+            }
+          },
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetMarginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "400": {
+            "description": "you must provide a device id on each request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Device ID is required for device registration",
+                  "errorCode": "DEVICE400"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Set the default margin applied to new agents (Master only)",
+        "tags": [
+          "Commissions"
+        ]
+      }
+    },
     "/locations/wilayas": {
       "get": {
         "operationId": "LocationController_getWilayas",
@@ -4702,271 +4967,6 @@
         ]
       }
     },
-    "/commissions/me": {
-      "get": {
-        "description": "Every product with the rate this account receives, the margin its parent keeps on it, and the margin it keeps on each agent.",
-        "operationId": "CommissionsController_mine",
-        "parameters": [
-          {
-            "name": "x-device-id",
-            "in": "header",
-            "description": "enter current device id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "you must provide a device id on each request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Device ID is required for device registration",
-                  "errorCode": "DEVICE400"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "access-token": []
-          }
-        ],
-        "summary": "My commissions (Master only)",
-        "tags": [
-          "Commissions"
-        ]
-      }
-    },
-    "/commissions/agents/{agentId}": {
-      "get": {
-        "description": "For each product: the master rate, the margin the master keeps on the agent, and the agent rate.",
-        "operationId": "CommissionsController_agent",
-        "parameters": [
-          {
-            "name": "x-device-id",
-            "in": "header",
-            "description": "enter current device id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
-            }
-          },
-          {
-            "name": "agentId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "you must provide a device id on each request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Device ID is required for device registration",
-                  "errorCode": "DEVICE400"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "access-token": []
-          }
-        ],
-        "summary": "An agent commissions (Master only)",
-        "tags": [
-          "Commissions"
-        ]
-      }
-    },
-    "/commissions/agents/{agentId}/{productId}": {
-      "patch": {
-        "description": "The agent rate follows from the master rate minus this margin. The margin may not exceed the master rate.",
-        "operationId": "CommissionsController_setAgentMargin",
-        "parameters": [
-          {
-            "name": "x-device-id",
-            "in": "header",
-            "description": "enter current device id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
-            }
-          },
-          {
-            "name": "agentId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "productId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetMarginDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "you must provide a device id on each request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Device ID is required for device registration",
-                  "errorCode": "DEVICE400"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "access-token": []
-          }
-        ],
-        "summary": "Set the margin kept on an agent (Master only)",
-        "tags": [
-          "Commissions"
-        ]
-      }
-    },
-    "/commissions/defaults": {
-      "get": {
-        "operationId": "CommissionsController_defaults",
-        "parameters": [
-          {
-            "name": "x-device-id",
-            "in": "header",
-            "description": "enter current device id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "you must provide a device id on each request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Device ID is required for device registration",
-                  "errorCode": "DEVICE400"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "access-token": []
-          }
-        ],
-        "summary": "Default margin for new agents (Master only)",
-        "tags": [
-          "Commissions"
-        ]
-      }
-    },
-    "/commissions/defaults/{productId}": {
-      "patch": {
-        "operationId": "CommissionsController_setDefault",
-        "parameters": [
-          {
-            "name": "x-device-id",
-            "in": "header",
-            "description": "enter current device id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
-            }
-          },
-          {
-            "name": "productId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetMarginDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "you must provide a device id on each request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Device ID is required for device registration",
-                  "errorCode": "DEVICE400"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "access-token": []
-          }
-        ],
-        "summary": "Set the default margin applied to new agents (Master only)",
-        "tags": [
-          "Commissions"
-        ]
-      }
-    },
     "/dashboard/stats": {
       "get": {
         "operationId": "DashboardController_getStats",
@@ -5645,6 +5645,15 @@
             "required": false,
             "in": "query",
             "description": "The account's own sales and its agents' sales",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "includeEsim",
+            "required": false,
+            "in": "query",
+            "description": "Also list the eSIM sales, merged by date",
             "schema": {
               "type": "boolean"
             }
@@ -8738,66 +8747,6 @@
         ]
       }
     },
-    "/esim/orders/{id}/refund": {
-      "post": {
-        "operationId": "GoSimController_requestRefund",
-        "parameters": [
-          {
-            "name": "x-device-id",
-            "in": "header",
-            "description": "enter current device id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
-            }
-          },
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RequestRefundDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": ""
-          },
-          "400": {
-            "description": "you must provide a device id on each request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Device ID is required for device registration",
-                  "errorCode": "DEVICE400"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "access-token": []
-          }
-        ],
-        "summary": "Request refund for an eSIM order",
-        "tags": [
-          "eSIM (GoSIM)"
-        ]
-      }
-    },
     "/esim/prices": {
       "get": {
         "operationId": "EsimPricesController_mine",
@@ -11016,6 +10965,7 @@
     },
     "/external/v1/me": {
       "get": {
+        "description": "Call this first to check a key: it needs no scope. Shows the key environment (sandbox keys start with mzp_test_, live keys with mzp_live_), its scopes and its expiry.",
         "operationId": "ExternalApiController_me",
         "parameters": [],
         "responses": {
@@ -11175,6 +11125,7 @@
     },
     "/external/v1/balance": {
       "get": {
+        "description": "balance is what the account can spend on orders, in DZD. profit is what its sales have earned so far. Needs the balance:read scope.",
         "operationId": "ExternalApiController_balance",
         "parameters": [],
         "responses": {
@@ -11352,6 +11303,7 @@
     },
     "/external/v1/products": {
       "get": {
+        "description": "The plans you can sell with POST /orders (type mobile), grouped by operator. A plan with amount has a fixed value; a plan with minAmount and maxAmount takes the amount you send. Filter with operator. Needs catalog:read.",
         "operationId": "ExternalApiController_products",
         "parameters": [
           {
@@ -11590,6 +11542,7 @@
     },
     "/external/v1/products/gift-cards": {
       "get": {
+        "description": "Every gift card product you can sell. Get its denominations, with your price and the stock, from GET /products/gift-cards/{productId}. Needs catalog:read.",
         "operationId": "ExternalApiController_giftCards",
         "parameters": [],
         "responses": {
@@ -11795,13 +11748,16 @@
     },
     "/external/v1/products/gift-cards/{productId}": {
       "get": {
+        "description": "Each denomination (type) has the price your account pays and how many you can buy in one order (maxQuantity). Order one with POST /orders (type gift_card, productId, typeId, quantity). Needs catalog:read.",
         "operationId": "ExternalApiController_giftCard",
         "parameters": [
           {
             "name": "productId",
             "required": true,
             "in": "path",
+            "description": "From GET /products/gift-cards",
             "schema": {
+              "example": "60d83c9851bed7424c20bc49",
               "type": "string"
             }
           }
@@ -12030,6 +11986,7 @@
     },
     "/external/v1/products/esim": {
       "get": {
+        "description": "The destinations with eSIM packages. Use a code with GET /products/esim/{locationCode} to list its packages. Filter by name or code with search. Needs catalog:read.",
         "operationId": "ExternalApiController_esimLocations",
         "parameters": [
           {
@@ -12248,13 +12205,16 @@
     },
     "/external/v1/products/esim/packages/{packageId}/price": {
       "get": {
+        "description": "The total for quantity eSIMs of this package (and days, for unlimited plans), before you order it. Needs catalog:read.",
         "operationId": "ExternalApiController_esimPrice",
         "parameters": [
           {
             "name": "packageId",
             "required": true,
             "in": "path",
+            "description": "From GET /products/esim/{locationCode}",
             "schema": {
+              "example": 101,
               "type": "number"
             }
           },
@@ -12543,13 +12503,16 @@
     },
     "/external/v1/products/esim/{locationCode}": {
       "get": {
+        "description": "The packages of one destination, with data volume, duration, networks and your selling price. Order one with POST /orders (type esim, packageId, quantity). Needs catalog:read.",
         "operationId": "ExternalApiController_esimPackages",
         "parameters": [
           {
             "name": "locationCode",
             "required": true,
             "in": "path",
+            "description": "From GET /products/esim",
             "schema": {
+              "example": "TR",
               "type": "string"
             }
           }
@@ -12802,6 +12765,7 @@
     },
     "/external/v1/bills/billers": {
       "get": {
+        "description": "Each biller lists the fields a lookup needs, with the pattern each value must match, and the fee your account charges. Needs catalog:read.",
         "operationId": "ExternalApiController_billers",
         "parameters": [],
         "responses": {
@@ -13030,6 +12994,7 @@
     },
     "/external/v1/bills/lookups": {
       "post": {
+        "description": "Asks the biller what a customer account owes. The answer is not immediate: keep the lookupId and poll GET /bills/lookups/{id}. Needs sell:create.",
         "operationId": "ExternalApiController_lookupBills",
         "parameters": [],
         "requestBody": {
@@ -13309,13 +13274,16 @@
     },
     "/external/v1/bills/lookups/{id}": {
       "get": {
+        "description": "Poll this until the lookup is ready, then pay with POST /orders (type bill). Needs sell:create.",
         "operationId": "ExternalApiController_billLookup",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "The lookupId from POST /bills/lookups",
             "schema": {
+              "example": "6563a1f0c2b4e8d9a1b2c3d4",
               "type": "string"
             }
           }
@@ -13550,6 +13518,7 @@
     },
     "/external/v1/orders": {
       "post": {
+        "description": "One route for every product: type selects the fields to send (mobile when omitted). The price is taken from your balance. clientRef is your own unique reference: sending the same clientRef again returns the original order instead of selling twice, so retry with it after a timeout. Most orders finish later: poll GET /orders/{id} for the outcome. Needs sell:create.",
         "operationId": "ExternalApiController_createOrder",
         "parameters": [],
         "requestBody": {
@@ -14012,6 +13981,7 @@
         ]
       },
       "get": {
+        "description": "Newest first, 20 per page by default (at most 100). Without type, mobile and gift card orders are listed together; eSIM orders are listed only with type=esim. Needs orders:read.",
         "operationId": "ExternalApiController_listOrders",
         "parameters": [
           {
@@ -14383,13 +14353,16 @@
     },
     "/external/v1/orders/{id}": {
       "get": {
+        "description": "An open order is checked with the provider on each read, so polling this route is enough to see it finish. Mobile and gift card orders: read outcome; processing and verifying are still open, success, failed and cancelled are final, and failureCode says why one failed. eSIM orders are open while status is pending or provisioning. Needs orders:read.",
         "operationId": "ExternalApiController_getOrder",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "The order id returned by POST /orders",
             "schema": {
+              "example": "8a3b20d7-bd9e-4c90-9746-b208abc6cd80",
               "type": "string"
             }
           }
@@ -14647,13 +14620,16 @@
     },
     "/external/v1/orders/{id}/cards": {
       "get": {
+        "description": "Card codes are never part of the order itself: read them here once the order is fulfilled. Each read is recorded, and the answer is sent with Cache-Control: no-store; do not cache or log the codes. Needs orders:read.",
         "operationId": "ExternalApiController_giftCardCodes",
         "parameters": [
           {
             "name": "id",
             "required": true,
             "in": "path",
+            "description": "The id of a fulfilled gift card order",
             "schema": {
+              "example": "aa3149f6-b6ed-4b0d-9e7c-2977a814504c",
               "type": "string"
             }
           }
@@ -15086,6 +15062,10 @@
           "token"
         ]
       },
+      "SetMarginDto": {
+        "type": "object",
+        "properties": {}
+      },
       "UpdateSignupRequestDto": {
         "type": "object",
         "properties": {
@@ -15334,10 +15314,6 @@
           "newPassword",
           "confirmNewPassword"
         ]
-      },
-      "SetMarginDto": {
-        "type": "object",
-        "properties": {}
       },
       "TransferProfitDto": {
         "type": "object",
@@ -15848,18 +15824,6 @@
           "paymentMethod",
           "acceptedTerms",
           "biometricToken"
-        ]
-      },
-      "RequestRefundDto": {
-        "type": "object",
-        "properties": {
-          "reason": {
-            "type": "string",
-            "example": "Customer was double charged"
-          }
-        },
-        "required": [
-          "reason"
         ]
       },
       "CreatePosTopUpDto": {

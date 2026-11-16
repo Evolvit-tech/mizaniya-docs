@@ -7440,6 +7440,8 @@
                   "statusCode": 200,
                   "data": {
                     "balance": 8320,
+                    "profit": 1846.02,
+                    "posProfitReserve": 238.98,
                     "usersServed": 42,
                     "usersServedComparedToLastWeek": 12.5
                   }
@@ -7461,7 +7463,7 @@
     },
     "/distributor-wallet/operations": {
       "get": {
-        "description": "Recharges, top-ups sent to accounts and accepted master withdrawals. Sale margins, refunds and profit payouts also move the wallet but are not listed, so newBalance can jump between rows.",
+        "description": "One of the admin's wallets (`wallet`): the balance (recharges, top-ups sent, accepted withdrawals, profit moved in), the admin's profit (its share of each sale, refunds, profit moved out) or the POS profit reserve (the POS shares of each sale, refunds, POS payouts).",
         "operationId": "DistributorWalletController_getOperations",
         "parameters": [
           {
@@ -7535,6 +7537,21 @@
             }
           },
           {
+            "name": "wallet",
+            "required": false,
+            "in": "query",
+            "description": "Which of the admin wallets to list",
+            "schema": {
+              "default": "balance",
+              "type": "string",
+              "enum": [
+                "balance",
+                "profit",
+                "reserve"
+              ]
+            }
+          },
+          {
             "name": "type",
             "required": false,
             "in": "query",
@@ -7543,7 +7560,12 @@
               "enum": [
                 "recharge",
                 "send",
-                "withdrawal"
+                "withdrawal",
+                "profit_transfer",
+                "sale_profit",
+                "refund",
+                "pos_payout",
+                "opening"
               ]
             }
           },
@@ -7597,7 +7619,8 @@
                         "id": "uuid",
                         "fullName": "Sara Amrani"
                       },
-                      "receipt": null
+                      "receipt": null,
+                      "operationId": null
                     },
                     {
                       "id": "1a2b3c4d-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
@@ -7616,7 +7639,8 @@
                         "key": "private/wallet_receipt/9c8b7a6d-5e4f-4a3b-2c1d-0e9f8a7b6c5d/receipt.pdf",
                         "fileName": "receipt.pdf",
                         "mimeType": "application/pdf"
-                      }
+                      },
+                      "operationId": null
                     }
                   ]
                 }
@@ -7648,6 +7672,51 @@
           }
         ],
         "summary": "Get the admin wallet's operations",
+        "tags": [
+          "Distributor Wallet"
+        ]
+      }
+    },
+    "/distributor-wallet/profit/transfer": {
+      "post": {
+        "description": "Moves part or all of the admin profit wallet into the balance, to sell it on. The admin making it is recorded.",
+        "operationId": "DistributorWalletController_transferProfit",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferProfitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profit moved to the balance",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "profit moved to the balance",
+                  "statusCode": 200,
+                  "data": {
+                    "reference": "5b1e0f9e-3c1f-4a3e-9c55-0d1f4b8e2a10",
+                    "amount": 5000,
+                    "profit": 1250,
+                    "balance": 3757735
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Move the admin's profit into its balance",
         "tags": [
           "Distributor Wallet"
         ]
@@ -12198,6 +12267,19 @@
         },
         "required": [
           "masterId"
+        ]
+      },
+      "TransferProfitDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "description": "Amount moved from the admin's profit into its balance",
+            "example": 5000
+          }
+        },
+        "required": [
+          "amount"
         ]
       },
       "RechargeWalletDto": {
