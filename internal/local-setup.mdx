@@ -7,9 +7,7 @@ The **local kit** (`local-dev-kit/`) runs both backends, both web apps, and a lo
 
 **Use the kit instead of:** the staging database, a personal or company mail account, a real OneClick key, the shared default password, or manual SQL to create an admin.
 
-<Warning>
-  **The `local-test` branch is missing on GitHub** for `Mizaniya-Pay-POS-Backend` and `mizaniya-pay-frontend-market`. `setup` switches every repository to `local-test`, so on a fresh machine it stops with "has no branch local-test". Until the branch is pushed, ask the tech lead which branch to use, and pass it as `MIZANIYA_BRANCH=<branch> ./local-dev.sh setup`.
-</Warning>
+**The kit runs `staging`**, the branch the team works on and deploys. To run another branch, pass it as `MIZANIYA_BRANCH=<branch> ./local-dev.sh setup`, or switch later with `./local-dev.sh checkout <branch>`.
 
 ## Prerequisites
 
@@ -54,7 +52,7 @@ The first run takes about 10 to 15 minutes:
     Checks the prerequisites and creates `env/pos.env` and `env/admin.env` from the examples.
   </Step>
   <Step title="Get the code">
-    Clones any missing repository, switches all six to `local-test`, and points the shared-database submodule at the commit each backend pins.
+    Clones any missing repository, switches all six to `staging`, and points the shared-database submodule at the commit each backend pins.
   </Step>
   <Step title="Build">
     Starts the Docker containers, runs `npm ci`, and builds everything.
@@ -67,7 +65,7 @@ The first run takes about 10 to 15 minutes:
   </Step>
 </Steps>
 
-**Done when** `./local-dev.sh status` shows every service as `up`.
+**Done when** `./local-dev.sh status` shows every service as `up`. On `staging` the Ooredoo simulator shows `n/a`, which is expected.
 
 **Your logins** are written to `tools/credentials.json`: admins, POS masters and agents, and a partner API key. Read them there; they are not copied into these docs.
 
@@ -87,7 +85,7 @@ Everything listens on `127.0.0.1` only.
 | Postgres | `127.0.0.1:5440` | Docker; database `mizaniya_lt` |
 | Redis | `127.0.0.1:6390` | Docker |
 | S3 | `http://localhost:9000` | SeaweedFS in Docker; holds uploaded ID cards |
-| Ooredoo simulator | `http://127.0.0.1:4020` | `test/simulators/ooredoo.mjs` in the POS repository |
+| Ooredoo simulator | `http://127.0.0.1:4020` | Only on branches with the direct Ooredoo link; `n/a` in `status` on `staging` |
 | GoSIM stub | `http://127.0.0.1:4010` | `tools/gosim-stub.py` |
 | Static QR stub | `http://127.0.0.1:9180` | `tools/qr-stub.py`; answers 204 |
 | OneClick, SMS | cut off | Calls fail at once; nothing leaves your machine |
@@ -121,7 +119,7 @@ Everything listens on `127.0.0.1` only.
 
 | What | Where |
 | --- | --- |
-| Admin login code | Admin inbox; valid 5 minutes. On `local-test` it is random; code from `staging` uses `000000` outside `production` |
+| Admin login code | Admin inbox; valid 5 minutes. Always `000000` outside `production` on `staging` (`src/common/utils/generate-otp.util.ts`) |
 | POS approval email and set-password link | POS inbox |
 | POS forgot-password code | POS inbox |
 | Admin password reset | Admin inbox |
@@ -136,10 +134,10 @@ Everything listens on `127.0.0.1` only.
 
 ## The outside services
 
-**Ooredoo** goes through the simulator. Numbers ending in `01` to `07` trigger the failure cases: not eligible, refused, no answer, server error, postpaid, over the 500 DZD limit, and pending. Any other ending succeeds. See its state at `http://127.0.0.1:4020/__sim/state`.
+**Ooredoo** goes through OneClick on `staging`, like Djezzy and Mobilis, so its sales **fail locally**. The fake data's Ooredoo sales fail too; they are only logged.
 
 <Note>
-  The POS backend only sends Ooredoo sales to the simulator when its code has the direct Ooredoo link (`OOREDOO_DIRECT_ENABLED`). On `staging` that link is not merged, so Ooredoo goes through OneClick and **fails locally** like Djezzy and Mobilis.
+  The Ooredoo simulator exists only on branches with the direct Ooredoo link (`feat/ooredoo-direct`). On such a branch the kit starts it on port 4020 and Ooredoo sales go through it: numbers ending in `01` to `07` trigger the failure cases (not eligible, refused, no answer, server error, postpaid, over the 500 DZD limit, pending), any other ending succeeds, and its state is at `http://127.0.0.1:4020/__sim/state`.
 </Note>
 
 **Djezzy, Mobilis, Algérie Télécom and gift cards** use OneClick, which is cut off, so these sales fail on purpose. If you must test OneClick, ask the tech lead for the **sandbox** key and set `ONECLICK_BASE_URL` and `ONECLICK_API_KEY` in `env/pos.env`. **Never use a live key.**
@@ -187,5 +185,5 @@ git -c protocol.file.allow=always submodule update Mizaniya-Pay-POS-Shared-Datab
 | Old behaviour after `git pull` | `./local-dev.sh build` |
 | Migration error after switching branches | `./local-dev.sh reset-data` |
 | `shared database commit … not found` | `git -C ../Mizaniya-Pay-POS-Shared-Database fetch origin`, then `./local-dev.sh checkout` |
-| `has no branch local-test` | See the warning at the top of this page |
+| `has no branch <name>` | The branch is not on GitHub; check the name, or run `./local-dev.sh checkout staging` |
 | Anything else | `./local-dev.sh logs <app>`; build, install and seed logs are in `run/` |

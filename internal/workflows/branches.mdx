@@ -17,13 +17,13 @@ Branch your work from `staging`, and bring it back to `staging`.
 | `dev` | The previous working branch; still triggers the old deploy workflows | 4 Nov 2026 |
 | `main` | Older release line | Sept to Oct 2026 |
 | `deployment` | Old self-hosted staging deploy for the shared database | Sept to Oct 2026 |
-| `local-test` | The branch the [local kit](/local-setup) checks out | 20 Oct 2026 |
+| `local-test` | The local kit's old default; the kit now runs `staging` | 20 Oct 2026 |
 
 <Warning>
   **Pushing to `dev` still deploys** through the old workflows: `deploy.yml` (POS backend), `deploy-staging.yml` (admin backend, market web app) and `deploy-stating.yml` (admin web app). Ask the tech lead before pushing there.
 </Warning>
 
-**`local-test` is incomplete on GitHub.** It is missing from `Mizaniya-Pay-POS-Backend` and `mizaniya-pay-frontend-market`, and it is far behind `staging` everywhere else. See the warning on [Local setup](/local-setup).
+**`local-test` is no longer used.** It is missing from `Mizaniya-Pay-POS-Backend` and `mizaniya-pay-frontend-market` on GitHub and far behind `staging` elsewhere, so the [local kit](/local-setup) now checks out `staging`.
 
 ## Work branches
 
