@@ -51,6 +51,7 @@ flowchart TB
   pos --> qr
   admin --> smtp
   admin --> qr
+  admin -. "read-only" .-> oneclick
 ```
 
 Both APIs share **one** Postgres database. Neither API calls the other: the admin side changes rows the POS side reads.
@@ -94,7 +95,7 @@ Both APIs share **one** Postgres database. Neither API calls the other: the admi
 - **Who calls it:** the admin web app only.
 - **Auth:** bearer token (`access-token`), then a second factor by email code.
 - **Permissions:** every route is checked against the admin's access type. See [Permissions](/backend/permissions).
-- **Outside services:** SMTP (login codes, password resets), S3 (attachments), the static QR platform.
+- **Outside services:** SMTP (login codes, password resets), S3 (attachments), the static QR platform, and OneClick **read-only**: the gift card list and each card's stock, when an admin presses the update button (`src/common/oneclick/oneclick.client.ts`). Only the POS backend sells through OneClick.
 
 ## Background jobs
 

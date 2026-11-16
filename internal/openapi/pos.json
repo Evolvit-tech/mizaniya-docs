@@ -1592,7 +1592,7 @@
     },
     "/pos-accounts/{id}/qr-token": {
       "patch": {
-        "description": "Bind a static-QR token to an owned agent POS account.\n\n- Agent must belong to the authenticated Master POS.\n- The token is verified upstream before it is persisted.\n- Replacing an existing token tears down its previous upstream config.\n- The token is globally unique; a collision is rejected as a conflict.",
+        "description": "Bind a static-QR token to an account directly under the authenticated master: an agent, or a master it created.\n\n- The account must be directly under the authenticated Master POS.\n- The token is verified upstream before it is persisted.\n- Replacing an existing token tears down its previous upstream config.\n- The token is globally unique; a collision is rejected as a conflict.",
         "operationId": "AccountController_setAgentQrToken",
         "parameters": [
           {
@@ -1672,13 +1672,13 @@
             "access-token": []
           }
         ],
-        "summary": "Assign a partner QR token to an agent (Master only)",
+        "summary": "Assign a partner QR token to an account under the master (Master only)",
         "tags": [
           "Account"
         ]
       },
       "delete": {
-        "description": "Unbind the static-QR token from an owned agent POS account and tear down its upstream config.\n\n- Agent must belong to the authenticated Master POS.\n- Idempotent: a no-op when the agent has no token.",
+        "description": "Unbind the static-QR token from an owned agent POS account and tear down its upstream config.\n\n- The account must be directly under the authenticated Master POS.\n- Idempotent: a no-op when the agent has no token.",
         "operationId": "AccountController_clearAgentQrToken",
         "parameters": [
           {

@@ -10050,6 +10050,72 @@
         ]
       }
     },
+    "/providers/{provider}/top-masters": {
+      "get": {
+        "description": "Top masters ranked by their network's fulfilled sales of the provider (the master and every account below it), by the amount the customers paid.",
+        "operationId": "ProvidersController_getTopMasters",
+        "parameters": [
+          {
+            "name": "provider",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "enum": [
+                "ooredoo",
+                "algerie_telecom",
+                "djezzy",
+                "mobilis",
+                "gift_cards",
+                "esim",
+                "bills"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by master name",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get a provider's top masters",
+        "tags": [
+          "Providers"
+        ]
+      }
+    },
     "/gift-cards/overview": {
       "get": {
         "description": "Changes compare the last 7 days with the 7 before. Stock is as the POS backend last read it from OneClick.",
@@ -10501,6 +10567,95 @@
           }
         ],
         "summary": "A card's denominations at the provider price, with its markup",
+        "tags": [
+          "Gift cards"
+        ]
+      }
+    },
+    "/gift-cards/refresh": {
+      "post": {
+        "description": "Reads the card list from OneClick now (new cards added, cards that left disabled), then every listed card in the background. Follow `updating` in GET /gift-cards/overview until it is 0.",
+        "operationId": "GiftCardsController_requestRefresh",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Read the card list and every card's stock from OneClick",
+        "tags": [
+          "Gift cards"
+        ]
+      }
+    },
+    "/gift-cards/cards/{productId}/refresh": {
+      "post": {
+        "operationId": "GiftCardsController_refreshCard",
+        "parameters": [
+          {
+            "name": "productId",
+            "required": true,
+            "in": "path",
+            "description": "OneClick's product id",
+            "schema": {
+              "example": "psn-dz",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gift card updated",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "success",
+                  "statusCode": 200,
+                  "data": {
+                    "productId": "psn-dz",
+                    "title": "PlayStation Network",
+                    "category": "Gaming Cards",
+                    "image": null,
+                    "typesCount": 3,
+                    "stock": 100,
+                    "totalAmount": 10000,
+                    "enabled": true,
+                    "markup": {
+                      "type": "fixed",
+                      "value": 500
+                    },
+                    "updatedAt": "2026-02-17T14:23:00.000Z",
+                    "types": [
+                      {
+                        "typeId": "psn-500",
+                        "name": "PSN 500 DA",
+                        "providerPrice": 490,
+                        "stock": 60
+                      },
+                      {
+                        "typeId": "psn-2000",
+                        "name": "PSN 2000 DA",
+                        "providerPrice": 2000,
+                        "stock": 40
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Read one card's denominations, prices and stock from OneClick",
         "tags": [
           "Gift cards"
         ]

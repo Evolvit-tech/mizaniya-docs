@@ -9,7 +9,7 @@ description: "The admin API: modules, login, and how it shares data with the POS
 
 ## Routes by area
 
-147 routes on `staging`, grouped by controller prefix:
+150 routes on `staging`, grouped by controller prefix:
 
 | Prefix | Folder | Routes | Permission |
 | --- | --- | --- | --- |
@@ -26,10 +26,10 @@ description: "The admin API: modules, login, and how it shares data with the POS
 | `/mobile-plans` | `src/mobile-plans` | 3 | Approved POS Management |
 | `/api-keys` | `src/api-keys` | 4 | Approved POS Management |
 | `/partner-api` | `src/partner-api-tracking` | 6 | Approved POS Management |
-| `/gift-cards` | `src/gift-cards` | 12 | Approved POS Management, Finance Dashboard |
+| `/gift-cards` | `src/gift-cards` | 14 | Approved POS Management, Finance Dashboard |
 | `/esim` | `src/esim-prices` | 9 | Approved POS Management, Finance Dashboard |
 | `/dashboard` | `src/dashboard` | 6 | Finance Dashboard |
-| `/providers` | `src/providers` | 4 | Finance Dashboard |
+| `/providers` | `src/providers` | 5 | Finance Dashboard |
 | `/provider-accounts` | `src/provider-accounts` | 4 | Finance Dashboard |
 | `/operations` | `src/operations` | 6 | Operations Management |
 | `/pos-top-up` | `src/pos-top-up` | 10 | Operations Management |
@@ -64,7 +64,9 @@ An admin logs in in two steps. Every route except those marked `@Public()` needs
 
 The admin backend **shows** prices and margins; the POS backend **charges** them. These variables must have the same value in both deployments:
 
-`COMMISSION_ENGINE_ENABLED`, `GIFT_CARD_COST_PLUS_ENABLED`, `GIFT_CARD_MARKUP_PERCENT`, `GIFT_CARD_SERVICE_FEE_DZD`, `ESIM_COST_PLUS_ENABLED`, `ESIM_MARKUP_PERCENT`.
+`COMMISSION_ENGINE_ENABLED`, `GIFT_CARD_COST_PLUS_ENABLED`, `GIFT_CARD_MARKUP_PERCENT`, `GIFT_CARD_SERVICE_FEE_DZD`, `ESIM_COST_PLUS_ENABLED`, `ESIM_MARKUP_PERCENT`, `GIFT_CATALOG_REGION`.
+
+**OneClick, read-only.** The gift card update button (`POST /gift-cards/refresh`, `POST /gift-cards/cards/{productId}/refresh`) reads the card list and stock from OneClick with `ONECLICK_BASE_URL` and `ONECLICK_API_KEY`, the same key as the POS backend. The admin backend never sells.
 
 Several other settings use **different names** than in the POS backend, for example `SAPWD` and `CORS_ORIGINS`. See [Environment variables](/environment#admin-backend).
 

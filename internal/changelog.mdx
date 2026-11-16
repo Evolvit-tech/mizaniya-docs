@@ -7,6 +7,13 @@ Newest first. Built from the `staging` history of each repository; every item li
 
 Until 4 November changes arrived as pull requests. From 10 November most are pushed directly to `staging`, so those entries link to commits; the November release came back through pull requests.
 
+<Update label="16 Nov 2026, afternoon" description="Gift card update button, top masters, QR tokens">
+  - The admin can update the gift card list and stock on request: the admin backend reads them from OneClick (read-only, new `ONECLICK_*` and `GIFT_CATALOG_REGION` settings). Admin API [`1c355ba`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/1c355ba), [`78e63fe`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/78e63fe), admin web [`e38a223`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/e38a223)
+  - A POS-side stock refresh job was added, then dropped in favour of the admin's update. POS [`bf1b78f`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/bf1b78f), revert [`f760d7d`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/f760d7d)
+  - A provider's top masters by network sales (`GET /providers/{provider}/top-masters`), shown as the top 10 in the margins table. Admin API [`ac36319`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/ac36319), admin web [`471442d`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/471442d)
+  - A master can set the QR token of a master directly under it, not only of its agents. POS [`6241c44`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/6241c44), market [`055d466`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/055d466), admin web [`7bd96dd`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/7bd96dd)
+</Update>
+
 <Update label="16 Nov 2026" description="V-TPE from its own window, gift card logos">
   - V-TPE is offered from its own window only, not as a sale's payment method, unless `VITE_VTPE_AS_PAYMENT=true`. Market [`7f38ea4`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/7f38ea4)
   - Logos for the eight gift cards that had none. Market [`ac73eee`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/ac73eee), admin web [`59ee90e`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/59ee90e)

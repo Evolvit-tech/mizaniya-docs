@@ -27,7 +27,7 @@ The list is the `PERMISSIONS` enum in `Mizaniya-Pay-POS-Shared-Database/src/enum
 | `onboardingPOSManagement` | Sign-up requests | 6 |
 | `approvedPOSManagement` | POS accounts, commissions, prices, partner keys | 62 |
 | `operationsManagement` | Operations, POS top-ups, distributor wallet | 20 |
-| `financeDashboard` | Dashboard, providers, provider accounts, some price reports | 27 |
+| `financeDashboard` | Dashboard, providers, provider accounts, gift card updates, some price reports | 30 |
 | `configurations` | No route yet | 0 |
 | `marketingManagement` | No route yet | 0 |
 | `supportAndComplainsManagement` | No route yet | 0 |
@@ -75,7 +75,7 @@ async getById(@Param('id', new ParseUUIDPipe()) id: string) {
 }
 ```
 
-- Use `'view'` for reads and `'edit'` for anything that changes data.
+- Use `'view'` for reads and `'edit'` for anything that changes data. Two routes break this rule today: `POST /gift-cards/refresh` and `POST /gift-cards/cards/{productId}/refresh` rewrite the stored card list and stock with `'view'` only.
 - Put the decorator on each route. On the controller class it also works, and applies to every route in it.
 - **A new permission** means a new value in the `PERMISSIONS` enum, which is a Postgres enum column. That needs a migration in the shared database. See [Shared database](/backend/shared-database#change-the-schema).
 

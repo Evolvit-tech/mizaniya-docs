@@ -197,6 +197,7 @@ These work exactly as in the POS backend tables above:
 - **Email:** `EMAIL_HOST`, `EMAIL_USERNAME`, `EMAIL_PASSWORD`, `MAIL_DISABLED`, `OTP_EXPIRATION_DURATION`.
 - **Storage:** every `AWS_*` variable except the master key pair (renamed above).
 - **Static QR:** `STATIC_QR_BASE_URL`, `STATIC_QR_API_KEY`.
+- **OneClick:** `ONECLICK_BASE_URL` (default `https://api.oneclickdz.com/v3/`) and `ONECLICK_API_KEY` (default empty). The admin backend uses them **read-only**, to read the gift card list and each card's stock for the update button. Use the same key as the POS backend; with an empty key the update fails.
 
 `CORS_ORIGINS` has the same trap as the POS one: unset means no origin is allowed.
 
@@ -225,6 +226,9 @@ The admin backend only **shows** prices and margins; the POS backend **charges**
 | `GIFT_CARD_SERVICE_FEE_DZD` | `0` |
 | `ESIM_COST_PLUS_ENABLED` | `false` |
 | `ESIM_MARKUP_PERCENT` | `0` |
+| `GIFT_CATALOG_REGION` | `all` |
+
+`GIFT_CATALOG_REGION` decides which regions' gift cards are sold: the admin's update reads the same regions as the POS catalog.
 
 ## Web apps
 
