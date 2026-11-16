@@ -11301,9 +11301,197 @@
         ]
       }
     },
+    "/external/v1/commissions": {
+      "get": {
+        "description": "Your rate per service, as OneClick gives Mizaniya its own: what is left after every level above you took its share. `percentage` is a % of the amount sold, `fixed` an amount in DZD per sale. Example: at 1.5% on Djezzy, a 1000 DZD top-up earns you 15 DZD once delivered (`earnedMargin` in the order). Gift cards and eSIM are not listed: their price already includes the margins above you.",
+        "operationId": "ExternalApiController_commissions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "message": "success",
+                  "data": [
+                    {
+                      "service": "flexy",
+                      "product": "Djezzy",
+                      "type": "percentage",
+                      "value": 0.3
+                    },
+                    {
+                      "service": "internet",
+                      "product": "4G",
+                      "type": "percentage",
+                      "value": 2
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "The API key is missing, wrong, or can no longer be used.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY401_MISSING": {
+                    "summary": "No x-api-key header",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "An API key is required in the x-api-key header",
+                      "errorCode": "API_KEY401_MISSING",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/commissions",
+                      "requestId": "d91ece0e-a893-48ee-86a8-840c2005cb8c"
+                    }
+                  },
+                  "API_KEY401_INVALID": {
+                    "summary": "Unknown key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "Invalid API key",
+                      "errorCode": "API_KEY401_INVALID",
+                      "timestamp": "2026-11-12T10:43:39.147Z",
+                      "path": "/external/v1/commissions",
+                      "requestId": "8aa12b16-f087-4f87-9e57-f9130e797e2e"
+                    }
+                  },
+                  "API_KEY401_REVOKED": {
+                    "summary": "Revoked key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has been revoked",
+                      "errorCode": "API_KEY401_REVOKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "keyPrefix": "mzp_test_RrBVTEtN3h6S"
+                      },
+                      "path": "/external/v1/commissions",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_EXPIRED": {
+                    "summary": "Expired key",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key has expired",
+                      "errorCode": "API_KEY401_EXPIRED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/commissions",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_BLOCKED": {
+                    "summary": "Key blocked by Mizaniya",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key is blocked",
+                      "errorCode": "API_KEY401_BLOCKED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/commissions",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  },
+                  "API_KEY401_WRONG_ENVIRONMENT": {
+                    "summary": "Test key on production (or live key on test)",
+                    "value": {
+                      "statusCode": 401,
+                      "message": "This API key belongs to a different environment",
+                      "errorCode": "API_KEY401_WRONG_ENVIRONMENT",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "path": "/external/v1/commissions",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The key cannot do this, or the account cannot afford it.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY403_INSUFFICIENT_SCOPE": {
+                    "summary": "Key without the catalog:read scope",
+                    "value": {
+                      "statusCode": 403,
+                      "message": "This API key does not have the scope this operation requires",
+                      "errorCode": "API_KEY403_INSUFFICIENT_SCOPE",
+                      "timestamp": "2026-11-12T10:43:39.144Z",
+                      "details": {
+                        "required": "catalog:read",
+                        "granted": [
+                          "catalog:read"
+                        ]
+                      },
+                      "path": "/external/v1/commissions",
+                      "requestId": "b714c936-d405-44cb-84d6-ca6ad4f8e07d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests for this key: wait, then retry.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "API_KEY429_RATE_LIMITED": {
+                    "summary": "Rate limit reached",
+                    "value": {
+                      "statusCode": 429,
+                      "message": "Rate limit exceeded for this API key",
+                      "errorCode": "API_KEY429_RATE_LIMITED",
+                      "timestamp": "2026-11-12T10:43:39.145Z",
+                      "details": {
+                        "retryAfterSeconds": 30
+                      },
+                      "path": "/external/v1/commissions",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error on our side: retry later and quote the requestId.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "HTTP_500": {
+                    "summary": "Unexpected error",
+                    "value": {
+                      "statusCode": 500,
+                      "message": "Internal server error",
+                      "path": "/external/v1/commissions",
+                      "requestId": "2b1c7d3e-5f60-4a8b-9c0d-1e2f3a4b5c6d"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "api-key": []
+          }
+        ],
+        "summary": "The account's final rate on each service, after the levels above it",
+        "tags": [
+          "Partner API"
+        ]
+      }
+    },
     "/external/v1/products": {
       "get": {
-        "description": "The plans you can sell with POST /orders (type mobile), grouped by operator. A plan with amount has a fixed value; a plan with minAmount and maxAmount takes the amount you send. Filter with operator. Needs catalog:read.",
+        "description": "The plans you can sell with POST /orders (type mobile), grouped by operator. A plan with amount has a fixed value; a plan with minAmount and maxAmount takes the amount you send. Filter with operator. Needs catalog:read. `commission` is your final rate on the operator's top-ups (the same as in GET /commissions), or null when none is set. The amount of a sale is debited from your balance; your share is added to your profit once it is delivered.",
         "operationId": "ExternalApiController_products",
         "parameters": [
           {
@@ -11331,6 +11519,10 @@
                   "data": [
                     {
                       "operator": "ooredoo",
+                      "commission": {
+                        "type": "percentage",
+                        "value": 0.3
+                      },
                       "products": [
                         {
                           "code": "PREPAID_OOREDOO",
@@ -11534,7 +11726,7 @@
             "api-key": []
           }
         ],
-        "summary": "Mobile top-up plans, per operator",
+        "summary": "Mobile top-up plans per operator, with the account's rate",
         "tags": [
           "Partner API"
         ]
@@ -13518,7 +13710,7 @@
     },
     "/external/v1/orders": {
       "post": {
-        "description": "One route for every product: type selects the fields to send (mobile when omitted). The price is taken from your balance. clientRef is your own unique reference: sending the same clientRef again returns the original order instead of selling twice, so retry with it after a timeout. Most orders finish later: poll GET /orders/{id} for the outcome. Needs sell:create.",
+        "description": "One route for every product: type selects the fields to send (mobile when omitted). The price is taken from your balance. clientRef is your own unique reference: sending the same clientRef again returns the original order instead of selling twice, so retry with it after a timeout. Most orders finish later: poll GET /orders/{id} for the outcome. Needs sell:create. `amount` is debited from your balance. `earnedMargin` is what the sale earns you at your rate (GET /commissions), added to your profit once the order is fulfilled.",
         "operationId": "ExternalApiController_createOrder",
         "parameters": [],
         "requestBody": {
