@@ -1,6 +1,6 @@
 ---
 title: "Commissions"
-description: "How your earnings are set on top-ups, gift cards and eSIMs."
+description: "How your earnings are set on top-ups, gift cards and eSIMs, and how to read your rates."
 ---
 
 {/* Source: Mizaniya_Commission_Rules.pdf, models 1 and 2. Model 3 (bill payments) is out of scope. Awaiting client sign-off on what partners see (plan blocker B10). */}
@@ -31,10 +31,57 @@ You then sell at your own price. What you earn is the difference between your se
   A fixed markup stays the same amount when the provider changes its price. A percentage markup is recalculated on the new cost. In the example, if the provider raises the card to 2,400 DZD, your cost becomes 3,190 DZD.
 </Note>
 
+## See your rates
+
+`GET /external/v1/commissions` lists your final rate on each service, after every account above you took its share. It needs the `catalog:read` scope.
+
+<CodeGroup>
+
+```bash curl
+curl "$MIZANIYA_API_URL/external/v1/commissions" \
+  -H "x-api-key: $MIZANIYA_API_KEY"
+```
+
+```js Node.js
+const res = await fetch(`${process.env.MIZANIYA_API_URL}/external/v1/commissions`, {
+  headers: { 'x-api-key': process.env.MIZANIYA_API_KEY },
+});
+const { data: rates } = await res.json();
+```
+
+</CodeGroup>
+
+```json Response
+{
+  "statusCode": 200,
+  "message": "success",
+  "data": [
+    { "service": "flexy", "product": "Djezzy", "type": "percentage", "value": 0.3 },
+    { "service": "internet", "product": "4G", "type": "percentage", "value": 2 }
+  ]
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `service` | The service group, for example `flexy` (mobile top-ups) or `internet`. |
+| `product` | The product, named as in the catalog and the orders, for example `Djezzy`. |
+| `type` | `percentage`: a percentage of the amount sold. `fixed`: an amount in DZD per sale. |
+| `value` | The rate. `0.3` with `percentage` means 0.3%. |
+
+**Example.** At 0.3% on Djezzy, a 1,000 DZD top-up earns you 3 DZD once it is delivered.
+
+The same rate appears as `commission` on each operator in `GET /external/v1/products`, or `null` when none is set. See [Mobile top-ups](/guides/top-up).
+
+<Note>
+  Gift cards and eSIMs earn a markup, not a rate: your earnings on them are already in their catalog `price`.
+</Note>
+
 ## Where you see your earnings
 
 | Where | What |
 | --- | --- |
+| `GET /external/v1/commissions` | Your rate on each service. |
 | `earnedMargin` on each order | What that sale earned your account, in DZD. |
 | `profit` on `GET /external/v1/balance` | What your sales have earned so far. |
 | `price` in the gift card and eSIM catalogs | Your cost price, all markups above you included. |

@@ -24,6 +24,8 @@ Code is grouped by feature under `src/`, mostly one folder per admin API area:
 | `dashboard` | Finance figures |
 | `common`, `lib` | HTTP client, layout, navigation, helpers |
 
+**Hidden for now:** the commercial managers pages and the POS profit tab of the wallet are in the code but hidden from the app (`61ddcd3`). The admin API still serves `/commercial-managers`.
+
 **The sidebar** is defined in `src/common/data/nav.data.tsx`. Which entries an admin sees comes from `GET /access-types/me`; see [Permissions](/backend/permissions#menus).
 
 ## Run it

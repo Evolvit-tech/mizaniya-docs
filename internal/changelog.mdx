@@ -5,7 +5,25 @@ description: "What changed on staging, across the six repositories."
 
 Newest first. Built from the `staging` history of each repository; every item links to its commit or merge on GitHub (`Evolvit-tech`).
 
-Until 4 November changes arrived as pull requests; since 10 November they are pushed directly to `staging`, so entries link to commits.
+Until 4 November changes arrived as pull requests. From 10 November most are pushed directly to `staging`, so those entries link to commits; the November release came back through pull requests.
+
+<Update label="15 Nov 2026, evening" description="November release, partner rates">
+  **Partner rates** (`feat/partner-rates-and-signup-link`)
+
+  - New partner route `GET /external/v1/commissions` (`catalog:read`), and a `commission` on each operator in `GET /external/v1/products`. POS PR #60, [`fab1754`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/fab1754)
+  - A rates section in the app's developer area. Market PR #57, [`a112cd8`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/a112cd8)
+  - The admin app hides the commercial managers and the POS profit wallet tab. Admin web PR #72, [`d44f7d0`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/d44f7d0)
+  - The `.env.sample` files list the sign-up and email verification page addresses. Admin API PR #44, [`1e3a5da`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/1e3a5da)
+
+  **November release** (`release/november-2026`; the release branch leaves the staging deploy files out, `staging` keeps them)
+
+  - POS PR #59, [`0cf0100`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/0cf0100)
+  - Admin API PR #43, [`b58858e`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/b58858e)
+  - Market PR #56, [`916e720`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/916e720)
+  - Admin web PR #71, [`57f7e9e`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/57f7e9e)
+  - Core PR #65, [`da3e6f0`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-core/commit/da3e6f0)
+  - Shared DB PR #27, [`3326c70`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Shared-Database/commit/3326c70)
+</Update>
 
 <Update label="13–15 Nov 2026" description="Money flow, V-TPE switch, staging on Docker">
   **Money flow and wallets**

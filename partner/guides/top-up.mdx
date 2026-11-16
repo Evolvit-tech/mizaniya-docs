@@ -32,6 +32,7 @@ A top-up credits a customer's prepaid line. You need a key with `catalog:read`, 
       "data": [
         {
           "operator": "ooredoo",
+          "commission": { "type": "percentage", "value": 0.3 },
           "products": [
             { "code": "PREPAID_OOREDOO", "name": "📱 PREPAID | عادي", "minAmount": 100, "maxAmount": 5000, "available": true }
           ]
@@ -43,6 +44,7 @@ A top-up credits a customer's prepaid line. You need a key with `catalog:read`, 
     - A plan with `amount` has a fixed value.
     - A plan with `minAmount` and `maxAmount` takes the amount you choose, in DZD, within those bounds.
     - Sell only plans with `available: true`.
+    - `commission` is your rate on this operator's top-ups, or `null` when none is set. See [Commissions](/guides/commissions#see-your-rates).
   </Step>
   <Step title="Place the order">
     Send `POST /external/v1/orders`. For a top-up, `type` is `mobile` (or left out).

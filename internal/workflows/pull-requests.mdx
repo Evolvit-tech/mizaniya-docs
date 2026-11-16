@@ -5,7 +5,7 @@ description: "Commit messages, git hooks, and how a change gets reviewed and mer
 
 ## How changes land today
 
-Recent work reaches `staging` mostly as **direct pushes**, not pull requests: since 1 November, `staging` in the POS backend and the market app has no merge commits. Earlier history has GitHub pull requests (`Merge pull request #… from MizaniyaPay/…`).
+Both ways are in use. From 10 to 15 November most work reached `staging` as **direct pushes**. Larger changes arrive as GitHub pull requests from the client's copies (`Merge pull request #… from MizaniyaPay/…`), as the November release did on 15 November.
 
 **No repository runs checks on pull requests.** The only checks are the git hooks below, on your own machine, in the two backends.
 
