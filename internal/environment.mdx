@@ -7,6 +7,8 @@ Each backend validates its environment at startup with a zod schema, `src/common
 
 **Required** means the app does not start without it. **Default** is the value used when the variable is unset.
 
+**Fake values for every required variable**, ready to run locally, are in the local kit: `local-dev-kit/env/pos.env.example` and `local-dev-kit/env/admin.env.example`.
+
 <Warning>
   Never paste a real value into this page, a PR or a chat. Every example here is fake. For local work, the [local kit](/local-setup) generates working fake values.
 </Warning>
@@ -139,7 +141,7 @@ The real bounds are these values intersected with the operator's own plan limits
 | --- | --- | --- | --- |
 | `GIFT_CATALOG_TTL_SECONDS` | No | `86400` | How long the gift card catalog stays fresh |
 | `GIFT_CATALOG_STALE_TOLERANCE_SECONDS` | No | `172800` | How long past that a stale catalog may be served |
-| `GIFT_CATALOG_REGION` | No | `dz` | Region kept from the catalog, plus products with no region |
+| `GIFT_CATALOG_REGION` | No | `all` | `all`, or a comma-separated list of regions to sell; cards with no region are always sold |
 | `GIFT_CARD_MARKUP_PERCENT` | No | `5` | Markup on the wholesale card price |
 | `GIFT_CARD_SERVICE_FEE_DZD` | No | `0` | Fixed fee per card, shown as its own line |
 | `GIFT_CARD_MAX_QUANTITY` | No | `10` | Most cards in one order |

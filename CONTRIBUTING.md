@@ -12,10 +12,10 @@ Merging to `main` publishes both sites.
 
 ## Writing rules
 
-- **Language:** the partner site is in English. The internal site uses one language across the whole site, as agreed by the team.
+- **Language:** both sites are in English. An Arabic internal site was tested and set aside: Mintlify renders `/ar/` pages left to right.
 - **`openapi/` files:** never edit them by hand. They are generated from the backends. Fix the decorators in the backend instead.
 - **Examples:** every example must run, and use fake data only. No real API keys, phone numbers or accounts.
-- **Secrets:** the environment variables page lists each variable's name, purpose and an example value only. Never copy `.env` files or credentials.
+- **Secrets:** the environment variables page lists each variable's name, whether it is required, its default and its purpose. Example values are fake, and fake values for every required variable live in the local kit's `env/*.env.example`. Never copy `.env` files or credentials.
 - **Components:** use Mintlify's components (`Steps`, `CodeGroup`, `Note`, `Warning`) instead of custom HTML.
 - **Formatting:** run `mint format` in the site folder before opening a PR.
 

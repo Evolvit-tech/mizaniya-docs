@@ -81,7 +81,7 @@ Partners call `/external/v1` with an `x-api-key` header. The public guide is the
 A call is refused, in this order, when:
 
 1. the client IP is over its rate limit;
-2. the key is missing, unknown, `revoked` or `blocked`;
+2. the key is missing, unknown, `revoked`, `blocked` or past its expiry date;
 3. the key's environment (`sandbox` or `live`) differs from the server's `PARTNER_API_ENVIRONMENT`;
 4. the key's POS account is not `approved`;
 5. the key is over its per-minute read or write limit;
