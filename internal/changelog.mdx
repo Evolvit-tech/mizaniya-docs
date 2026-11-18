@@ -7,6 +7,10 @@ Newest first. Built from the `staging` history of each repository; every item li
 
 Until 4 November changes arrived as pull requests. From 10 November most are pushed directly to `staging`, so those entries link to commits; the November release came back through pull requests.
 
+<Update label="16 Nov 2026, evening" description="An agent's top-ups, earnings and sub-agents">
+  - A master sees the top-ups, earnings and sub-agents of any account in its network, at any depth: `GET /pos-accounts/{id}/topups`, `/earnings`, `/sub-agents` and `/sub-agents/stats` (Master only; an account outside the network answers not found). The agent details page shows them instead of sample rows. POS [`89b0375`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/89b0375), market [`dbef6c4`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/dbef6c4), [`fd701e6`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/fd701e6)
+</Update>
+
 <Update label="16 Nov 2026, afternoon" description="Gift card update button, top masters, QR tokens">
   - The admin can update the gift card list and stock on request: the admin backend reads them from OneClick (read-only, new `ONECLICK_*` and `GIFT_CATALOG_REGION` settings). Admin API [`1c355ba`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/1c355ba), [`78e63fe`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/78e63fe), admin web [`e38a223`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/e38a223)
   - A POS-side stock refresh job was added, then dropped in favour of the admin's update. POS [`bf1b78f`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/bf1b78f), revert [`f760d7d`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/f760d7d)

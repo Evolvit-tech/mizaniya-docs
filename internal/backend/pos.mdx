@@ -55,11 +55,12 @@ Two global guards are registered in `AuthModule`, so they run on **every** route
 - the request has an `x-device-id` header;
 - that device has a live session (the user has not logged out).
 
-**Roles.** A POS is a `master` or an `agent` (`PosType`). 26 routes are `@Roles(PosType.Master)`:
+**Roles.** A POS is a `master` or an `agent` (`PosType`). 30 routes are `@Roles(PosType.Master)`:
 
 | Controller | Master-only routes |
 | --- | --- |
 | `src/account/account.controller.ts` | 13 |
+| `src/account/agent-network.controller.ts` | 4 |
 | `src/signup-request/signup-request.controller.ts` | 7 |
 | `src/commissions/commissions.controller.ts` | 5 |
 | `src/marketplace/marketplace.controller.ts` | 1 |

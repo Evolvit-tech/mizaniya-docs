@@ -1754,6 +1754,553 @@
         ]
       }
     },
+    "/pos-accounts/{id}/topups": {
+      "get": {
+        "description": "The credits of its balance from a top-up, with the balance before and after. `type` is `bank_transfer` when the top-up answered a request with a receipt, `regular` otherwise.",
+        "operationId": "AgentNetworkController_getTopups",
+        "parameters": [
+          {
+            "name": "x-device-id",
+            "in": "header",
+            "description": "enter current device id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "An account of the master network",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by start date (ISO string)",
+            "schema": {
+              "example": "2025-11-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by end date (ISO string)",
+            "schema": {
+              "example": "2025-11-15",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Top-ups only",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regular",
+                "bank_transfer"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "you must provide a device id on each request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Device ID is required for device registration",
+                  "errorCode": "DEVICE400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "summary": "POS not found",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "POS with ID not found",
+                      "error": "Not Found",
+                      "code": "POS404_NOT_FOUND"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "An account's top-ups (Master only)",
+        "tags": [
+          "POS Accounts"
+        ]
+      }
+    },
+    "/pos-accounts/{id}/earnings": {
+      "get": {
+        "description": "The credits of its profit wallet from its sales, with the profit before and after.",
+        "operationId": "AgentNetworkController_getEarnings",
+        "parameters": [
+          {
+            "name": "x-device-id",
+            "in": "header",
+            "description": "enter current device id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "An account of the master network",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by start date (ISO string)",
+            "schema": {
+              "example": "2025-11-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by end date (ISO string)",
+            "schema": {
+              "example": "2025-11-15",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Top-ups only",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regular",
+                "bank_transfer"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "you must provide a device id on each request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Device ID is required for device registration",
+                  "errorCode": "DEVICE400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "summary": "POS not found",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "POS with ID not found",
+                      "error": "Not Found",
+                      "code": "POS404_NOT_FOUND"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "An account's earnings (Master only)",
+        "tags": [
+          "POS Accounts"
+        ]
+      }
+    },
+    "/pos-accounts/{id}/sub-agents": {
+      "get": {
+        "description": "Same filters as GET /pos-accounts, with each account balance and profit.",
+        "operationId": "AgentNetworkController_getSubAgents",
+        "parameters": [
+          {
+            "name": "x-device-id",
+            "in": "header",
+            "description": "enter current device id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "An account of the master network",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by start date (ISO string)",
+            "schema": {
+              "example": "2025-11-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by end date (ISO string)",
+            "schema": {
+              "example": "2025-11-15",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "approved",
+                "suspended"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "master",
+                "agent"
+              ]
+            }
+          },
+          {
+            "name": "wilayaId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "description": "Search by email, phone number, fullName, first name, last name, and store name",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "you must provide a device id on each request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Device ID is required for device registration",
+                  "errorCode": "DEVICE400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "summary": "POS not found",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "POS with ID not found",
+                      "error": "Not Found",
+                      "code": "POS404_NOT_FOUND"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "The accounts directly under an account (Master only)",
+        "tags": [
+          "POS Accounts"
+        ]
+      }
+    },
+    "/pos-accounts/{id}/sub-agents/stats": {
+      "get": {
+        "operationId": "AgentNetworkController_getSubAgentsStats",
+        "parameters": [
+          {
+            "name": "x-device-id",
+            "in": "header",
+            "description": "enter current device id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "06405da5-1030-40c0-beab-7728a33c9bd1"
+            }
+          },
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "An account of the master network",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by start date (ISO string)",
+            "schema": {
+              "example": "2025-11-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "Filter by end date (ISO string)",
+            "schema": {
+              "example": "2025-11-15",
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": 10,
+              "type": "number"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASC",
+                "DESC"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Top-ups only",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regular",
+                "bank_transfer"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "you must provide a device id on each request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Device ID is required for device registration",
+                  "errorCode": "DEVICE400"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "The requested resource was not found",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example1": {
+                    "summary": "POS not found",
+                    "value": {
+                      "statusCode": 404,
+                      "message": "POS with ID not found",
+                      "error": "Not Found",
+                      "code": "POS404_NOT_FOUND"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Counts of the accounts directly under an account (Master only)",
+        "tags": [
+          "POS Accounts"
+        ]
+      }
+    },
     "/attachment/{id}": {
       "get": {
         "operationId": "AttachmentController_getPrivateAttachmentById",
