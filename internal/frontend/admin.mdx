@@ -1,0 +1,81 @@
+---
+title: "Admin web app"
+description: "The web app the Mizaniya Pay team uses to run the platform."
+---
+
+`mizaniya-pay-frontend-market-admin` is the back office: onboarding and managing POS accounts, prices, commissions, top-ups, providers, partner keys and admins. It calls the [admin API](/backend/admin).
+
+**Stack:** React 19, Vite 7, Tailwind 4, React Router 7, TanStack Query and Table, Zustand, zod, i18next. Shared components come from the [core library](/frontend/core).
+
+## Folders
+
+Code is grouped by feature under `src/`, mostly one folder per admin API area:
+
+| Folder | Feature |
+| --- | --- |
+| `auth`, `profile` | Login with email code, own account |
+| `admin-management`, `access-types` | Admins, roles and menu switches |
+| `agents-onboarding` | Sign-up requests and the sign-up link |
+| `pos-accounts`, `commercial-managers` | Approved POS accounts and their managers |
+| `commissions`, `bill-fees`, `gift-cards`, `esim-prices`, `services-plans` | Prices, fees and margins |
+| `top-up-requests`, `withdrawal-requests`, `wallet`, `operations` | Money flows |
+| `providers`, `provider-accounts` | Upstream providers and their balances |
+| `api-keys`, `partner-api` | Partner keys and partner API tracking |
+| `dashboard` | Finance figures |
+| `common`, `lib` | HTTP client, layout, navigation, helpers |
+
+**Hidden for now:** the commercial managers pages and the POS profit tab of the wallet are in the code but hidden from the app (`61ddcd3`). The admin API still serves `/commercial-managers`.
+
+**The sidebar** is defined in `src/common/data/nav.data.tsx`. Which entries an admin sees comes from `GET /access-types/me`; see [Permissions](/backend/permissions#menus).
+
+## Run it
+
+The app needs the core library **built**, in a sibling folder named `mizaniya-pay-frontend-market-core`. See [Core library](/frontend/core#use-it-from-an-app).
+
+```bash
+cp .env.example .env       # then set VITE_API_URL
+npm ci
+npm run dev                # http://localhost:5173
+```
+
+Add `http://localhost:5173` to the admin backend's `CORS_ORIGINS`.
+
+The dev server does **not watch** the core library folder, to avoid running out of file watchers. After rebuilding the core library, restart `npm run dev`.
+
+For a full stack, use the [local kit](/local-setup): it serves this app's production build on port 4181.
+
+## Environment
+
+| Variable | Purpose |
+| --- | --- |
+| `VITE_API_URL` | Admin API address |
+| `VITE_SIGNUP_URL` | Sign-up link the "copy link" button on the onboarding page copies |
+
+Read **at build time**. See [Environment variables](/environment#admin-web-app).
+
+## Languages
+
+English, French and Arabic, from `public/locales/{en,fr,ar}.json`. Fallback: **Arabic** (the market app falls back to English).
+
+## Tests
+
+| Command | What |
+| --- | --- |
+| `npm test` | Unit tests, Vitest with jsdom, run once |
+| `npm run test:watch` | The same, in watch mode |
+| `npm run lint` | ESLint |
+
+There are no end-to-end tests in this repository.
+
+## Build and deploy
+
+```bash
+npm run build              # tsc -b, then vite build, into dist/
+npm run preview
+```
+
+**Staging:** every push to `staging` builds a Docker image (`deploy/staging/Dockerfile`) with the core library from its `staging` branch, served by nginx. Like the market app, the image runs `npx vite build` without `tsc -b`, so run `npm run build` before you push.
+
+<Note>
+  The older workflow file is named `deploy-stating.yml` (sic). It is not the staging flow described here.
+</Note>

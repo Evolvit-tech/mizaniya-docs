@@ -1,0 +1,106 @@
+---
+title: "Admin backend"
+description: "The admin API: modules, login, and how it shares data with the POS side."
+---
+
+`Mizaniya-Pay-Admin-POS-Backend` serves the admin web app only. Same stack as the POS backend: NestJS 11, TypeORM, Postgres, Redis.
+
+**It never calls the POS API.** Both write to the same database through the [shared database](/backend/shared-database). An admin change (a price, a suspension, a top-up) is a row the POS side reads on its next request.
+
+## Routes by area
+
+150 routes on `staging`, grouped by controller prefix:
+
+| Prefix | Folder | Routes | Permission |
+| --- | --- | --- | --- |
+| `/auth` | `src/auth` | 8 | Public, except logout |
+| `/users` | `src/user` | 8 | Admin Management, plus own profile |
+| `/admin-management` | `src/admin-management` | 5 | Admin Management |
+| `/access-types` | `src/access-type-management` | 7 | Admin Management, plus own menus |
+| `/signup-request` | `src/signup-request` | 6 | Onboarding POS Management |
+| `/pos-accounts` | `src/pos-account`, `src/bill-fees` | 25 | Approved POS Management |
+| `/attachment` | `src/attachment` | 1 | Approved POS Management |
+| `/commercial-managers` | `src/commercial-manager` | 4 | Approved POS Management |
+| `/commissions` | `src/commissions` | 8 | Approved POS Management |
+| `/bill-fees` | `src/bill-fees` | 3 | Approved POS Management |
+| `/mobile-plans` | `src/mobile-plans` | 3 | Approved POS Management |
+| `/api-keys` | `src/api-keys` | 4 | Approved POS Management |
+| `/partner-api` | `src/partner-api-tracking` | 6 | Approved POS Management |
+| `/gift-cards` | `src/gift-cards` | 14 | Approved POS Management, Finance Dashboard |
+| `/esim` | `src/esim-prices` | 9 | Approved POS Management, Finance Dashboard |
+| `/dashboard` | `src/dashboard` | 6 | Finance Dashboard |
+| `/providers` | `src/providers` | 5 | Finance Dashboard |
+| `/provider-accounts` | `src/provider-accounts` | 4 | Finance Dashboard |
+| `/operations` | `src/operations` | 6 | Operations Management |
+| `/pos-top-up` | `src/pos-top-up` | 10 | Operations Management |
+| `/distributor-wallet` | `src/wallets` | 4 | Operations Management |
+| `/locations` | `src/location` | 3 | Public |
+| `/health` | `src/app.controller.ts` | 1 | Public |
+
+See [Permissions](/backend/permissions) for how the permission column is enforced.
+
+**Folders without routes:** `src/access-type` (loads an admin's access type for the guard), `src/access-type-permissions` (the `@RequiredPermission` decorator and the global guard), `src/common` (config, email, token keys, logging, the static QR client) and `src/assets` (the logo used in emails).
+
+## Login
+
+An admin logs in in two steps. Every route except those marked `@Public()` needs a valid access token (global `JwtAuthGuard`).
+
+<Steps>
+  <Step title="Password">
+    `POST /auth/check-credentials` checks the email and password and emails a 6-digit code.
+  </Step>
+  <Step title="Email code">
+    `POST /auth/check-otp` checks the code and returns the access and refresh tokens. `POST /auth/resend-otp` sends a new code.
+  </Step>
+</Steps>
+
+**Refresh:** `POST /auth/refresh`. **Forgotten password:** `POST /auth/forgot-password`, then `/forgot-password/verify` with the emailed code, then `/forgot-password/reset`.
+
+**Outside `production` the code is always `000000`** (`src/common/utils/generate-otp.util.ts`, since `482335f`). It is still emailed unless `MAIL_DISABLED=true`, which logs emails instead of sending them and is refused in production.
+
+**The super admin** is created by the shared-database migration `manual-MGSuperAdmin`, with the password from `SAPWD`.
+
+## Settings shared with the POS side
+
+The admin backend **shows** prices and margins; the POS backend **charges** them. These variables must have the same value in both deployments:
+
+`COMMISSION_ENGINE_ENABLED`, `GIFT_CARD_COST_PLUS_ENABLED`, `GIFT_CARD_MARKUP_PERCENT`, `GIFT_CARD_SERVICE_FEE_DZD`, `ESIM_COST_PLUS_ENABLED`, `ESIM_MARKUP_PERCENT`, `GIFT_CATALOG_REGION`.
+
+**OneClick, read-only.** The gift card update button (`POST /gift-cards/refresh`, `POST /gift-cards/cards/{productId}/refresh`) reads the card list and stock from OneClick with `ONECLICK_BASE_URL` and `ONECLICK_API_KEY`, the same key as the POS backend. The admin backend never sells.
+
+Several other settings use **different names** than in the POS backend, for example `SAPWD` and `CORS_ORIGINS`. See [Environment variables](/environment#admin-backend).
+
+## Background job
+
+One `@Cron`: the daily expiry and deletion of admin reset keys (`src/common/token-keys/token-keys.service.ts`, 01:00).
+
+## Run it
+
+```bash
+npm ci
+npm run start:dev          # watch mode
+npm run build && npm run start:prod
+```
+
+Tests use **Jest**, not Vitest like the POS backend: `npm test` and `npm run test:e2e`. See [Testing](/workflows/testing).
+
+### All scripts
+
+| Script | What it does |
+| --- | --- |
+| `start`, `start:dev`, `start:debug` | Run from source; `start:dev` watches, `start:debug` also opens the debugger |
+| `build`, `start:prod` | Compile to `dist/`, then run `node dist/src/main` |
+| `lint`, `format` | ESLint with `--fix`, Prettier on `src/` and `test/` |
+| `test`, `test:watch`, `test:cov`, `test:debug` | Jest unit tests: once, watching, with coverage, with the debugger |
+| `test:e2e` | End-to-end suite against `.env.test`; see [Testing](/workflows/testing) |
+| `typeorm` | The TypeORM CLI against `.env` |
+| `migration:new`, `migration:generate` and their `-win` variants | Create a migration in the shared database; see [Shared database](/backend/shared-database#migration-scripts) |
+| `migration:run`, `migration:show`, `migration:revert` | Run, list or revert migrations against `.env` |
+| `migration:run-test`, `migration:show-test`, `migration:revert-test` | The same against `.env.test` |
+| `prepare` | Install the husky git hooks; runs on `npm ci` |
+
+The admin backend has no seed script. The only seed runner is the POS backend's (`npm run seed`), on the database both APIs share.
+
+## API docs
+
+Same routes as the POS backend: `/api` (Swagger UI), `/api-json`, `/reference` (Scalar). Basic-auth login in `production` only. The **Admin API** tab of this site is built from the same document.

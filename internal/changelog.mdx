@@ -1,0 +1,123 @@
+---
+title: "Changelog"
+description: "What changed on staging, across the six repositories."
+---
+
+Newest first. Built from the `staging` history of each repository; every item links to its commit or merge on GitHub (`Evolvit-tech`).
+
+Until 4 November changes arrived as pull requests. From 10 November most are pushed directly to `staging`, so those entries link to commits; the November release came back through pull requests.
+
+<Update label="16 Nov 2026, evening" description="An agent's top-ups, earnings and sub-agents">
+  - A master sees the top-ups, earnings and sub-agents of any account in its network, at any depth: `GET /pos-accounts/{id}/topups`, `/earnings`, `/sub-agents` and `/sub-agents/stats` (Master only; an account outside the network answers not found). The agent details page shows them instead of sample rows. POS [`89b0375`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/89b0375), market [`dbef6c4`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/dbef6c4), [`fd701e6`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/fd701e6)
+</Update>
+
+<Update label="16 Nov 2026, afternoon" description="Gift card update button, top masters, QR tokens">
+  - The admin can update the gift card list and stock on request: the admin backend reads them from OneClick (read-only, new `ONECLICK_*` and `GIFT_CATALOG_REGION` settings). Admin API [`1c355ba`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/1c355ba), [`78e63fe`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/78e63fe), admin web [`e38a223`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/e38a223)
+  - A POS-side stock refresh job was added, then dropped in favour of the admin's update. POS [`bf1b78f`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/bf1b78f), revert [`f760d7d`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/f760d7d)
+  - A provider's top masters by network sales (`GET /providers/{provider}/top-masters`), shown as the top 10 in the margins table. Admin API [`ac36319`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/ac36319), admin web [`471442d`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/471442d)
+  - A master can set the QR token of a master directly under it, not only of its agents. POS [`6241c44`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/6241c44), market [`055d466`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/055d466), admin web [`7bd96dd`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/7bd96dd)
+</Update>
+
+<Update label="16 Nov 2026" description="V-TPE from its own window, gift card logos">
+  - V-TPE is offered from its own window only, not as a sale's payment method, unless `VITE_VTPE_AS_PAYMENT=true`. Market [`7f38ea4`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/7f38ea4)
+  - Logos for the eight gift cards that had none. Market [`ac73eee`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/ac73eee), admin web [`59ee90e`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/59ee90e)
+</Update>
+
+<Update label="15 Nov 2026, evening" description="November release, partner rates">
+  **Partner rates** (`feat/partner-rates-and-signup-link`)
+
+  - New partner route `GET /external/v1/commissions` (`catalog:read`), and a `commission` on each operator in `GET /external/v1/products`. POS PR #60, [`fab1754`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/fab1754)
+  - A rates section in the app's developer area. Market PR #57, [`a112cd8`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/a112cd8)
+  - The admin app hides the commercial managers and the POS profit wallet tab. Admin web PR #72, [`d44f7d0`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/d44f7d0)
+  - The `.env.sample` files list the sign-up and email verification page addresses. Admin API PR #44, [`1e3a5da`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/1e3a5da)
+
+  **November release** (`release/november-2026`; the release branch leaves the staging deploy files out, `staging` keeps them)
+
+  - POS PR #59, [`0cf0100`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/0cf0100)
+  - Admin API PR #43, [`b58858e`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/b58858e)
+  - Market PR #56, [`916e720`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/916e720)
+  - Admin web PR #71, [`57f7e9e`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/57f7e9e)
+  - Core PR #65, [`da3e6f0`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-core/commit/da3e6f0)
+  - Shared DB PR #27, [`3326c70`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Shared-Database/commit/3326c70)
+</Update>
+
+<Update label="13–15 Nov 2026" description="Money flow, V-TPE switch, staging on Docker">
+  **Money flow and wallets**
+
+  - Each sale's margin is split into admin profit and POS reserve. POS [`2a07667`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/2a07667), shared DB [`03ecea4`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Shared-Database/commit/03ecea4)
+  - The admin's three wallets, with tabs for balance, admin profit and POS profit. Admin API [`8a67eef`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/8a67eef), admin web [`9f6cc72`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/9f6cc72)
+  - Withdrawals are held until the master confirms receipt; partial sends and not-received reports. POS [`6ccf501`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/6ccf501), market [`14f30e1`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/14f30e1)
+  - Direct admin top-ups are flagged for their receiver. Admin API [`ca56129`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/ca56129), market [`d6fe1b2`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/d6fe1b2)
+
+  **V-TPE switch**
+
+  - `VTPE_ENABLED` turns customer QR payment off for gift cards, bills and eSIM; cash stays. POS [`be68de3`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/be68de3), market `VITE_VTPE_ENABLED` [`82943b8`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/82943b8)
+
+  **Gift cards and eSIM**
+
+  - Gift cards of every region are sold; one tile per brand, region picked on the card. POS [`c525b52`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/c525b52), market [`2d17442`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/2d17442)
+  - The eSIM refund request is removed. POS [`fb43133`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/fb43133)
+  - eSIM sales appear in the transaction history. POS [`65e8666`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/65e8666), market [`4b02d4f`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/4b02d4f)
+
+  **Staging and tooling**
+
+  - Staging runs on Docker images from GHCR, deployed over SSH, one deploy at a time. POS [`681ad5a`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/681ad5a), [`f6b8420`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/f6b8420)
+  - `MAIL_DISABLED` and `SMS_DISABLED` for a staging without providers. POS [`4dc8571`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/4dc8571)
+  - The admin email code is `000000` outside production. Admin API [`482335f`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/482335f)
+  - Export button at the top of every page, and quick date ranges. Market [`2c2c3f0`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/2c2c3f0), core [`140565b`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-core/commit/140565b)
+</Update>
+
+<Update label="10–12 Nov 2026" description="Network pricing, partner API reference">
+  **Network pricing for gift cards, eSIM and bills**
+
+  - The admin sets a gift card price per top master; a master sets one per agent. POS [`28f8e4c`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/28f8e4c), [`9c67510`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/9c67510), admin API [`d70ee27`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/d70ee27)
+  - eSIM cost-plus pricing per country and region. POS [`03625d6`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/03625d6), admin API [`be64ad8`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/be64ad8), shared DB [`0f37b3c`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Shared-Database/commit/0f37b3c)
+  - Bill tariffs negotiated level by level. POS [`fe924f2`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/fe924f2), admin API [`3430c45`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/3430c45)
+  - eSIM paid in cash or V-TPE from the POS balance. POS [`d475fa1`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/d475fa1)
+
+  **Partner API**
+
+  - Every partner route documents every response with examples; the reference is in the app's developer area. POS [`17316ed`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/17316ed), [`b3dc861`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/b3dc861), market [`f0932ba`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/f0932ba)
+  - Bills can be paid through the partner API, behind `BILLS_ENABLED`. POS [`a4b0b86`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/a4b0b86)
+  - Test and live keys side by side were tried, then reverted: one key type per deployment, set by `PARTNER_API_ENVIRONMENT`. POS [`062febd`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/062febd), revert [`a1fec2d`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/a1fec2d)
+
+  **Fixes**
+
+  - Commissions: the network is rescaled with the provider rate (rule 5). POS [`4d51180`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/4d51180), admin API [`3ac21c8`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/3ac21c8)
+  - The gift card catalog loads on start and refreshes when stale. POS [`ea196a6`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/ea196a6)
+</Update>
+
+<Update label="4 Nov 2026" description="Gift cards and the partner API">
+  The `feat/gift-cards-and-partner-api` branch, merged in every repository:
+
+  - POS: PR #58, [`572f5f4`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/572f5f4)
+  - Admin API: PR #42, [`446ca41`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/446ca41)
+  - Market: PR #54, [`bfe1319`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/bfe1319)
+  - Admin web: PR #70, [`59c3bc6`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/59c3bc6)
+  - Shared DB: PR #26, [`709b7a4`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Shared-Database/commit/709b7a4)
+</Update>
+
+<Update label="29 Oct 2026" description="V-TPE and menu permissions">
+  - POS, V-TPE payments: PR #56, [`1a69227`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/1a69227)
+  - Admin API, menu permissions: PR #41, [`5936920`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/5936920)
+  - Shared DB, menu permissions: PR #25, [`ccd8ce3`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Shared-Database/commit/ccd8ce3)
+  - Market: PR #52, [`720d654`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/720d654)
+  - Admin web: PR #69, [`21a84ff`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/21a84ff)
+  - Core, date picker fix and device ID refresh: PRs #63 and #64, [`c12524b`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-core/commit/c12524b), [`21dc2fb`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-core/commit/21dc2fb)
+</Update>
+
+<Update label="8–21 Oct 2026" description="Production fixes">
+  - POS, QR token: PR #29, [`c7064db`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/c7064db)
+  - POS, QR payment without an order ID: PR #38, [`d91c1c6`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/d91c1c6)
+  - POS, production bugs: PR #39, [`1f8d559`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/1f8d559)
+  - POS, error details hidden from responses: PR #40, [`8ce4da1`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/8ce4da1)
+</Update>
+
+<Update label="14–15 Sep 2026" description="dev merged into main">
+  - POS: PR #27, [`7da1f72`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Backend/commit/7da1f72)
+  - Admin API: PR #19, [`402942c`](https://github.com/Evolvit-tech/Mizaniya-Pay-Admin-POS-Backend/commit/402942c)
+  - Market: PR #25, [`5642d87`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market/commit/5642d87)
+  - Admin web: PR #35, [`c1ee935`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-admin/commit/c1ee935)
+  - Core: PR #52, [`75ea8fb`](https://github.com/Evolvit-tech/mizaniya-pay-frontend-market-core/commit/75ea8fb)
+  - Shared DB: PR #13, [`1306af8`](https://github.com/Evolvit-tech/Mizaniya-Pay-POS-Shared-Database/commit/1306af8)
+</Update>

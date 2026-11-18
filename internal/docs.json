@@ -1,0 +1,33 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Mizaniya Pay Internal",
+  "colors": { "primary": "#1F4E67" },
+  "favicon": "/favicon.svg",
+  "logo": { "light": "/logo/light.svg", "dark": "/logo/dark.svg" },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          { "group": "Overview", "pages": ["architecture", "local-setup", "environment"] },
+          {
+            "group": "Backends",
+            "pages": ["backend/pos", "backend/admin", "backend/permissions", "backend/shared-database"]
+          },
+          {
+            "group": "Frontends",
+            "pages": ["frontend/market", "frontend/admin", "frontend/core", "frontend/mobile"]
+          },
+          {
+            "group": "Workflows",
+            "pages": ["workflows/branches", "workflows/pull-requests", "workflows/testing"]
+          },
+          { "group": "Releases", "pages": ["changelog"] }
+        ]
+      },
+      { "tab": "POS API", "openapi": { "source": "openapi/pos.json", "directory": "api/pos" } },
+      { "tab": "Admin API", "openapi": { "source": "openapi/admin.json", "directory": "api/admin" } }
+    ]
+  }
+}

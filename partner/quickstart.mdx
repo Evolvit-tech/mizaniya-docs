@@ -1,0 +1,120 @@
+---
+title: "Quickstart"
+description: "Make your first calls to the partner API with a sandbox key."
+---
+
+This guide takes you from a new key to your first catalog read. It uses a **sandbox** key, which works only on the sandbox server, so nothing you do here spends real money.
+
+<Steps>
+  <Step title="Create a sandbox key">
+    In the Mizaniya Pay app, open the developer area and create an API key:
+
+    - **Label:** a name to recognise the key, for example `Shop backend - sandbox`.
+    - **Scopes:** for this guide, `balance:read` and `catalog:read`.
+    - **Expiry:** optional. Without one, the key works until you remove it.
+
+    <Warning>
+      The full key is shown **once**, when you create it, and can't be retrieved later. Copy it into your server's secret store straight away.
+    </Warning>
+
+    A sandbox key starts with `mzp_test_`. A live key starts with `mzp_live_`.
+  </Step>
+  <Step title="Set your base URL and key">
+    Keep both out of your code. The examples in these docs read them from two shell variables:
+
+    ```bash
+    export MIZANIYA_API_URL="<sandbox base URL>"
+    export MIZANIYA_API_KEY="mzp_test_..."
+    ```
+
+    {/* Base URLs for sandbox and live: to be published once agreed (plan blocker B4). */}
+
+    <Note>
+      Sandbox and live are separate servers. Use the base URL that matches your key: a sandbox key is refused by the live server, and a live key by the sandbox one.
+    </Note>
+  </Step>
+  <Step title="Check the key">
+    `GET /external/v1/me` needs no scope. It tells you which account and scopes the key has.
+
+    <CodeGroup>
+
+    ```bash curl
+    curl "$MIZANIYA_API_URL/external/v1/me" \
+      -H "x-api-key: $MIZANIYA_API_KEY"
+    ```
+
+    ```js Node.js
+    const res = await fetch(`${process.env.MIZANIYA_API_URL}/external/v1/me`, {
+      headers: { 'x-api-key': process.env.MIZANIYA_API_KEY },
+    });
+    console.log(await res.json());
+    ```
+
+    </CodeGroup>
+
+    ```json Response
+    {
+      "statusCode": 200,
+      "message": "success",
+      "data": {
+        "posId": "7acaacba-3669-4682-b91e-11e2b05b0317",
+        "type": "master",
+        "environment": "sandbox",
+        "keyPrefix": "mzp_test_zsupvrRf9jad",
+        "label": "Shop backend - sandbox",
+        "scopes": ["balance:read", "catalog:read"],
+        "expiresAt": null
+      }
+    }
+    ```
+  </Step>
+  <Step title="Read your balance">
+    `GET /external/v1/balance` needs `balance:read`. Amounts are in DZD.
+
+    <CodeGroup>
+
+    ```bash curl
+    curl "$MIZANIYA_API_URL/external/v1/balance" \
+      -H "x-api-key: $MIZANIYA_API_KEY"
+    ```
+
+    ```js Node.js
+    const res = await fetch(`${process.env.MIZANIYA_API_URL}/external/v1/balance`, {
+      headers: { 'x-api-key': process.env.MIZANIYA_API_KEY },
+    });
+    const { data } = await res.json();
+    console.log(`Balance: ${data.balance} DZD, profit: ${data.profit} DZD`);
+    ```
+
+    </CodeGroup>
+
+    `balance` is what you can spend on orders. `profit` is what your sales have earned so far.
+  </Step>
+  <Step title="Read the catalog">
+    `GET /external/v1/products` needs `catalog:read` and lists the mobile top-up plans per operator.
+
+    <CodeGroup>
+
+    ```bash curl
+    curl "$MIZANIYA_API_URL/external/v1/products?operator=ooredoo" \
+      -H "x-api-key: $MIZANIYA_API_KEY"
+    ```
+
+    ```js Node.js
+    const url = new URL('/external/v1/products', process.env.MIZANIYA_API_URL);
+    url.searchParams.set('operator', 'ooredoo');
+    const res = await fetch(url, {
+      headers: { 'x-api-key': process.env.MIZANIYA_API_KEY },
+    });
+    console.log((await res.json()).data);
+    ```
+
+    </CodeGroup>
+  </Step>
+</Steps>
+
+## Next steps
+
+- To sell, add the `sell:create` scope to a key, and `orders:read` to follow your orders. See [Authentication](/authentication).
+- Follow a product guide: [Mobile top-ups](/guides/top-up), [Gift cards](/guides/gift-cards) or [eSIM](/guides/esim).
+- Handle errors with the codes in [Errors](/errors).

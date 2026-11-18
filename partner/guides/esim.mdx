@@ -1,0 +1,188 @@
+---
+title: "eSIM"
+description: "Find an eSIM package, check its price and place the order."
+---
+
+An eSIM gives a traveller mobile data abroad, installed from a QR code. You need a key with `catalog:read`, `sell:create` and `orders:read`.
+
+<Steps>
+  <Step title="Find the destination">
+    `GET /external/v1/products/esim` lists the destinations: countries, regions and global. Filter by name or code with `search`.
+
+    <CodeGroup>
+
+    ```bash curl
+    curl "$MIZANIYA_API_URL/external/v1/products/esim?search=tr" \
+      -H "x-api-key: $MIZANIYA_API_KEY"
+    ```
+
+    ```js Node.js
+    const url = new URL('/external/v1/products/esim', process.env.MIZANIYA_API_URL);
+    url.searchParams.set('search', 'tr');
+    const res = await fetch(url, { headers: { 'x-api-key': process.env.MIZANIYA_API_KEY } });
+    const { data: locations } = await res.json();
+    ```
+
+    </CodeGroup>
+
+    ```json Response
+    {
+      "statusCode": 200,
+      "message": "success",
+      "data": [{ "code": "TR", "name": "Turkey", "type": "country", "image": "" }]
+    }
+    ```
+  </Step>
+  <Step title="Choose a package">
+    `GET /external/v1/products/esim/{locationCode}` lists the destination's packages.
+
+    <CodeGroup>
+
+    ```bash curl
+    curl "$MIZANIYA_API_URL/external/v1/products/esim/TR" \
+      -H "x-api-key: $MIZANIYA_API_KEY"
+    ```
+
+    ```js Node.js
+    const res = await fetch(`${process.env.MIZANIYA_API_URL}/external/v1/products/esim/TR`, {
+      headers: { 'x-api-key': process.env.MIZANIYA_API_KEY },
+    });
+    const { data: packages } = await res.json();
+    ```
+
+    </CodeGroup>
+
+    ```json Response
+    {
+      "statusCode": 200,
+      "message": "success",
+      "data": [
+        {
+          "id": 101,
+          "name": "TR 1GB 7 days",
+          "price": 1200,
+          "currency": "DZD",
+          "duration": 7,
+          "volumeLabel": "1GB",
+          "isUnlimited": false,
+          "networks": ["Turkcell"],
+          "networkTypes": ["5G"],
+          "sellingPrice": 1200
+        }
+      ]
+    }
+    ```
+
+    `duration` is in days. For an unlimited package (`isUnlimited: true`), you choose the number of days when you price and order it.
+  </Step>
+  <Step title="Check the price">
+    `GET /external/v1/products/esim/packages/{packageId}/price` gives the total before you order. Pass `quantity` (default 1) and, for unlimited packages, `days`.
+
+    <CodeGroup>
+
+    ```bash curl
+    curl "$MIZANIYA_API_URL/external/v1/products/esim/packages/101/price?quantity=1" \
+      -H "x-api-key: $MIZANIYA_API_KEY"
+    ```
+
+    ```js Node.js
+    const url = new URL('/external/v1/products/esim/packages/101/price', process.env.MIZANIYA_API_URL);
+    url.searchParams.set('quantity', '1');
+    const res = await fetch(url, { headers: { 'x-api-key': process.env.MIZANIYA_API_KEY } });
+    const { data: price } = await res.json();
+    ```
+
+    </CodeGroup>
+
+    ```json Response
+    {
+      "statusCode": 200,
+      "message": "success",
+      "data": {
+        "packageId": 101,
+        "packageName": "TR 1GB 7 days",
+        "unitPrice": 1200,
+        "quantity": 1,
+        "serviceFee": 0,
+        "discount": 0,
+        "total": 1200,
+        "currency": "DZD"
+      }
+    }
+    ```
+  </Step>
+  <Step title="Place the order">
+    Send `POST /external/v1/orders` with `type: "esim"`.
+
+    | Field | Required | Meaning |
+    | --- | --- | --- |
+    | `clientRef` | yes | Your own unique reference for this sale. |
+    | `packageId` | yes | The package's `id`. |
+    | `quantity` | yes | Number of eSIMs. |
+    | `days` | for unlimited packages | Number of days. |
+    | `customer` | no | `name`, `email` and/or `phone`: Mizaniya Pay sends the QR code to them. Leave it out to deliver the QR code yourself. |
+
+    <CodeGroup>
+
+    ```bash curl
+    curl -X POST "$MIZANIYA_API_URL/external/v1/orders" \
+      -H "x-api-key: $MIZANIYA_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "type": "esim",
+        "clientRef": "shop-order-1003",
+        "packageId": 101,
+        "quantity": 1,
+        "customer": { "name": "Test Traveller", "email": "traveller@example.test" }
+      }'
+    ```
+
+    ```js Node.js
+    const res = await fetch(`${process.env.MIZANIYA_API_URL}/external/v1/orders`, {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.MIZANIYA_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'esim',
+        clientRef: 'shop-order-1003',
+        packageId: 101,
+        quantity: 1,
+        customer: { name: 'Test Traveller', email: 'traveller@example.test' },
+      }),
+    });
+    const { data: order } = await res.json();
+    ```
+
+    </CodeGroup>
+
+    A new eSIM order usually starts with `status: "provisioning"` and `esim: null`.
+  </Step>
+  <Step title="Get the eSIM">
+    Poll `GET /external/v1/orders/{id}` while `status` is `pending` or `provisioning`. Once it is `fulfilled`, the order's `esim` block holds what the traveller needs:
+
+    | Field | Meaning |
+    | --- | --- |
+    | `esim.qrCode` | The QR code to scan on the phone. |
+    | `esim.activationCode`, `esim.smdpAddress` | For entering the eSIM by hand. |
+    | `esim.iccid` | The eSIM's identifier. |
+    | `deliveredTo` | Where Mizaniya Pay sent the QR code: `email`, `sms`, or empty. |
+  </Step>
+</Steps>
+
+## eSIM statuses
+
+| `status` | Meaning |
+| --- | --- |
+| `pending`, `provisioning` | The provider is preparing the eSIM. Poll again. |
+| `fulfilled` | The eSIM is ready; the QR code is in the order. |
+| `activated` | The traveller has installed and activated it. |
+| `under_review` | The outcome is unclear, so Mizaniya Pay is checking the order by hand. |
+| `failed` | The order failed; no money moved, or it was refunded. |
+| `refunded` | The order was rejected and refunded; see `refundedAt`. |
+| `cancelled` | The customer cancelled an eSIM that wasn't activated yet. |
+
+<Note>
+  `GET /external/v1/orders` lists eSIM orders only when you pass `type=esim`. Without it, the list holds mobile and gift card orders.
+</Note>

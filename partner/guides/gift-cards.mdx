@@ -1,0 +1,173 @@
+---
+title: "Gift cards"
+description: "List, buy and deliver gift cards through the partner API."
+---
+
+A gift card order buys one or more card codes, which you then hand to your customer. You need a key with `catalog:read`, `sell:create` and `orders:read`.
+
+<Steps>
+  <Step title="List the products">
+    `GET /external/v1/products/gift-cards` returns every product you can sell.
+
+    <CodeGroup>
+
+    ```bash curl
+    curl "$MIZANIYA_API_URL/external/v1/products/gift-cards" \
+      -H "x-api-key: $MIZANIYA_API_KEY"
+    ```
+
+    ```js Node.js
+    const res = await fetch(`${process.env.MIZANIYA_API_URL}/external/v1/products/gift-cards`, {
+      headers: { 'x-api-key': process.env.MIZANIYA_API_KEY },
+    });
+    const { data: products } = await res.json();
+    ```
+
+    </CodeGroup>
+
+    ```json Response
+    {
+      "statusCode": 200,
+      "message": "success",
+      "data": [
+        { "productId": "60d83c9851bed7424c20bc49", "title": "Viber", "category": "Media & Stream" },
+        { "productId": "60d839f451bed7424c20bbe2", "title": "Shahid", "category": "Media & Stream" }
+      ]
+    }
+    ```
+  </Step>
+  <Step title="Choose a denomination">
+    `GET /external/v1/products/gift-cards/{productId}` returns the product's denominations (`types`), live from the provider.
+
+    <CodeGroup>
+
+    ```bash curl
+    curl "$MIZANIYA_API_URL/external/v1/products/gift-cards/60d83c9851bed7424c20bc49" \
+      -H "x-api-key: $MIZANIYA_API_KEY"
+    ```
+
+    ```js Node.js
+    const res = await fetch(
+      `${process.env.MIZANIYA_API_URL}/external/v1/products/gift-cards/${productId}`,
+      { headers: { 'x-api-key': process.env.MIZANIYA_API_KEY } },
+    );
+    const { data: product } = await res.json();
+    ```
+
+    </CodeGroup>
+
+    Each entry of `types` has:
+
+    | Field | Meaning |
+    | --- | --- |
+    | `id` | The denomination's id: send it as `typeId`. |
+    | `name` | The denomination, as the provider names it. |
+    | `price` | What your account pays per card, service fee included. |
+    | `basePrice`, `serviceFee` | `price` split into the card price and the fixed service fee. |
+    | `sellingPrice` | What your account charges per card. |
+    | `stock` | Cards in stock right now. |
+    | `maxQuantity` | The most cards of this denomination one order can buy. |
+
+    The product's `available` is `false` when no denomination is in stock.
+  </Step>
+  <Step title="Place the order">
+    Send `POST /external/v1/orders` with `type: "gift_card"`.
+
+    | Field | Required | Meaning |
+    | --- | --- | --- |
+    | `clientRef` | yes | Your own unique reference for this sale. |
+    | `productId` | yes | From the product list. |
+    | `typeId` | yes | The denomination's `id`. |
+    | `quantity` | yes | Number of cards, from 1 to the denomination's `maxQuantity`. |
+
+    <CodeGroup>
+
+    ```bash curl
+    curl -X POST "$MIZANIYA_API_URL/external/v1/orders" \
+      -H "x-api-key: $MIZANIYA_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "type": "gift_card",
+        "clientRef": "shop-order-1002",
+        "productId": "60d83c9851bed7424c20bc49",
+        "typeId": "type_001",
+        "quantity": 1
+      }'
+    ```
+
+    ```js Node.js
+    const res = await fetch(`${process.env.MIZANIYA_API_URL}/external/v1/orders`, {
+      method: 'POST',
+      headers: {
+        'x-api-key': process.env.MIZANIYA_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'gift_card',
+        clientRef: 'shop-order-1002',
+        productId: '60d83c9851bed7424c20bc49',
+        typeId: 'type_001',
+        quantity: 1,
+      }),
+    });
+    const { data: order } = await res.json();
+    ```
+
+    </CodeGroup>
+
+    The order never contains the card codes.
+  </Step>
+  <Step title="Wait for delivery">
+    Poll `GET /external/v1/orders/{id}` until `outcome` is final, as for [top-ups](/guides/top-up#follow-the-order). When `outcome` is `success`, the cards are ready.
+  </Step>
+  <Step title="Read the card codes">
+    `GET /external/v1/orders/{id}/cards` returns the codes of a delivered order.
+
+    <CodeGroup>
+
+    ```bash curl
+    curl "$MIZANIYA_API_URL/external/v1/orders/$ORDER_ID/cards" \
+      -H "x-api-key: $MIZANIYA_API_KEY"
+    ```
+
+    ```js Node.js
+    const res = await fetch(
+      `${process.env.MIZANIYA_API_URL}/external/v1/orders/${orderId}/cards`,
+      { headers: { 'x-api-key': process.env.MIZANIYA_API_KEY } },
+    );
+    const { data } = await res.json();
+    for (const card of data.cards) deliverToCustomer(card.code, card.serial);
+    ```
+
+    </CodeGroup>
+
+    ```json Response
+    {
+      "statusCode": 200,
+      "message": "success",
+      "data": {
+        "orderId": "aa3149f6-b6ed-4b0d-9e7c-2977a814504c",
+        "cards": [{ "number": 1, "code": "XXXX-XXXX-XXXX-XXXX", "serial": null }]
+      }
+    }
+    ```
+
+    Asking before delivery answers `409` with `GIFTCARD409_CARDS_NOT_AVAILABLE`. If the provider filled an order only in part, this route returns the cards that arrived, and Mizaniya Pay settles the rest.
+  </Step>
+</Steps>
+
+<Warning>
+  Card codes are money. Each read of `/cards` is recorded by Mizaniya Pay, and the answer is sent with `Cache-Control: no-store`. Don't cache, log or email the codes in clear: hand them to your customer over a secure channel only.
+</Warning>
+
+## Common errors
+
+| Code | When |
+| --- | --- |
+| `GIFTCARD404_PRODUCT_NOT_FOUND` | The product doesn't exist or isn't on sale. |
+| `GIFTCARD404_TYPE_NOT_FOUND` | The `typeId` isn't a denomination of this product. |
+| `GIFTCARD400_INVALID_QUANTITY` | The quantity isn't allowed for this denomination. |
+| `GIFTCARD409_OUT_OF_STOCK` | Not enough cards in stock. |
+| `MARKETPLACE403_INSUFFICIENT_BALANCE` | Your balance can't pay for the order. |
+
+See [Errors](/errors) for the full list.

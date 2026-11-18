@@ -1,0 +1,157 @@
+---
+title: "POS backend"
+description: "The POS API: modules, authentication and the partner API."
+---
+
+`Mizaniya-Pay-POS-Backend` serves the market web app, the mobile app and partners. It is a NestJS 11 app on TypeORM, Postgres and Redis.
+
+## Modules
+
+Registered in `src/app.module.ts`:
+
+| Module | Folder | What it does |
+| --- | --- | --- |
+| `AccountModule` | `src/account` | POS accounts, masters and their agents |
+| `AuthModule` | `src/auth` | Login, phone codes, sessions, devices, guards |
+| `DeviceModule` | `src/devices` | Devices a POS has logged in from |
+| `SignupRequestModule` | `src/signup-request` | Sign-up requests and invitations |
+| `PersonalInformationModule` | `src/personal-information` | Owner details of a POS |
+| `StoreInformationModule` | `src/store-information` | Shop details of a POS |
+| `AttachmentModule` | `src/attachment` | Uploads to S3 (ID cards, documents) |
+| `LocationModule` | `src/location` | Wilayas, dairas and municipalities |
+| `WalletsModule` | `src/wallets` | Wallets and the money ledger |
+| `TopUpModule` | `src/top-up-requests` | Requests to top up a POS wallet |
+| `MarketplaceModule` | `src/marketplace` | Sales, order polling, V-TPE payments and providers |
+| `GoSimModule` | `src/gosim` | eSIM catalog, prices and orders |
+| `CommissionsModule` | `src/commissions` | Commission rates and the commission engine |
+| `DashboardModule` | `src/dashboard` | Figures for the POS dashboard |
+| `ApiKeyManagementModule` | `src/api-keys` | Partner API keys of a POS, and the partner OpenAPI document |
+| `ExternalApiModule` | `src/external-api` | The partner API under `/external/v1` |
+| `HealthModule` | `src/health` | `/health`, limited to 2 calls a minute per client |
+| `CommonModule` | `src/common` | Config, email, SMS, OneClick and static QR clients, token keys, logging |
+
+**Other folders:** `src/partner-api-tracking` records every partner API call (a middleware and a recorder, imported by `ExternalApiModule`) and deletes them after `PARTNER_API_REQUEST_RETENTION_DAYS`; the admin app reads them. `src/assets` holds the logo used in emails.
+
+**Providers** are modules of their own, imported by `MarketplaceModule`: `src/djezzy`, `src/ooredoo`, `src/mobilis`, `src/algerie-telecom`, `src/gift-cards` and `src/bills`. Each one implements `TopupProvider` (`src/marketplace/contracts`) and is listed in the `TOPUP_PROVIDER` factory in `marketplace.module.ts`.
+
+**To add a provider:** create its module, import it in `MarketplaceModule`, and append its service to the `inject` list of `TOPUP_PROVIDER`. `ProviderRegistry` picks it up by `slug`, product name and category.
+
+## Authentication
+
+Two global guards are registered in `AuthModule`, so they run on **every** route:
+
+<Steps>
+  <Step title="JwtAuthGuard">
+    Skips routes marked `@Public()`. Sends routes marked `@ExternalApi()` to the API key guard. Everything else needs a valid access token, then passes `JwtPosAuthGuard`.
+  </Step>
+  <Step title="RolesGuard">
+    Applies `@Roles(...)`. Without it, any POS type may call the route.
+  </Step>
+</Steps>
+
+**`JwtPosAuthGuard`** (`src/auth/guards/pos.guard.ts`) refuses the call unless:
+
+- the POS account exists and its status is `approved`;
+- the request has an `x-device-id` header;
+- that device has a live session (the user has not logged out).
+
+**Roles.** A POS is a `master` or an `agent` (`PosType`). 30 routes are `@Roles(PosType.Master)`:
+
+| Controller | Master-only routes |
+| --- | --- |
+| `src/account/account.controller.ts` | 13 |
+| `src/account/agent-network.controller.ts` | 4 |
+| `src/signup-request/signup-request.controller.ts` | 7 |
+| `src/commissions/commissions.controller.ts` | 5 |
+| `src/marketplace/marketplace.controller.ts` | 1 |
+
+`src/api-keys/api-keys.controller.ts` names both types on the whole controller.
+
+**Phone codes.** Outside `production`, the code is always `000000` and no SMS is sent (`src/auth/otp/otp.service.ts`).
+
+## The partner API
+
+Partners call `/external/v1` with an `x-api-key` header. The public guide is the partner site; this section is how it works inside.
+
+| Piece | File |
+| --- | --- |
+| Routes | `src/external-api/external-api.controller.ts` (`@ExternalApi()`) |
+| Key check | `src/api-keys/api-key.guard.ts` |
+| Key lookup and status | `src/api-keys/api-keys.service.ts` |
+| Rate limits | `src/api-keys/api-key-rate-limiter.ts` |
+| OpenAPI document | `src/api-keys/partner-docs.service.ts` |
+
+A call is refused, in this order, when:
+
+1. the client IP is over its rate limit;
+2. the key is missing, unknown, `revoked`, `blocked` or past its expiry date;
+3. the key's environment (`sandbox` or `live`) differs from the server's `PARTNER_API_ENVIRONMENT`;
+4. the key's POS account is not `approved`;
+5. the key is over its per-minute read or write limit;
+6. the route's `@RequiredScope` is not among the key's scopes.
+
+**Scopes:** `balance:read`, `catalog:read`, `orders:read`, `sell:create`.
+
+**A key acts as its POS account.** The guard puts the account on `request.user`, so the services behind a partner route see what they see behind a session route.
+
+**Forgetting `@ExternalApi()` is safe:** the route falls into the JWT path and is refused, never opened.
+
+<Note>
+  Bill payments are part of the partner API code on `staging`, behind `BILLS_ENABLED`. They are hidden from the partner site until they ship.
+</Note>
+
+## Feature switches
+
+These variables switch whole features on or off without a code change. See [Environment variables](/environment) for all of them.
+
+| Variable | Default | Effect |
+| --- | --- | --- |
+| `COMMISSION_ENGINE_ENABLED` | `false` | New commission engine instead of `pos_product_benefits` |
+| `BILLS_ENABLED` | `false` | Bill payments and the `/bills` routes |
+| `VTPE_ENABLED` | `true` | Customer payment on the seller's QR |
+| `GIFT_CARD_COST_PLUS_ENABLED` | `false` | Network markups on gift cards |
+| `ESIM_COST_PLUS_ENABLED` | `false` | Network markups on eSIMs |
+| `MAIL_DISABLED`, `SMS_DISABLED` | `false` | Log messages instead of sending them; refused in production |
+
+## Run it
+
+```bash
+npm ci
+npm run start:dev          # watch mode
+npm run build && npm run start:prod
+```
+
+The app reads `.env` and validates it at startup. For a full local stack, use the [local kit](/local-setup).
+
+### All scripts
+
+| Script | What it does |
+| --- | --- |
+| `start`, `start:dev`, `start:debug` | Run from source; `start:dev` watches, `start:debug` also opens the debugger |
+| `build`, `start:prod` | Compile to `dist/`, then run `node dist/src/main` |
+| `lint`, `format` | ESLint with `--fix`, Prettier on `src/` and `test/` |
+| `test`, `test:watch`, `test:cov`, `test:debug` | Vitest unit tests: once, watching, with coverage, with the debugger |
+| `test:e2e`, `test:e2e:debug` | End-to-end suite against `.env.test`; see [Testing](/workflows/testing) |
+| `smoke:bills-sandbox` | Calls the OneClick bills sandbox; needs the sandbox key |
+| `typeorm`, `typeorm:test` | The TypeORM CLI against `.env` or `.env.test` |
+| `migration:new`, `migration:generate` and their `-win` variants | Create a migration in the shared database; see [Shared database](/backend/shared-database#migration-scripts) |
+| `migration:run`, `migration:show`, `migration:revert` | Run, list or revert migrations against `.env` |
+| `migration:test:run`, `migration:show-test` | Run or list migrations against `.env.test` |
+| `seed`, `seed:test` | Seed the database from `src/common/database/seed/runner.ts` |
+| `sync:margins` | Run the catalog margin sync once (the daily 04:00 job), against `.env.development.local` |
+| `commissions:verify` | Compare the old split and the commission engine on recent orders, against `.env.development.local` |
+| `prepare` | Install the husky git hooks; runs on `npm ci` |
+
+## API docs
+
+| Route | What |
+| --- | --- |
+| `/api` | Swagger UI |
+| `/api-json` | OpenAPI JSON |
+| `/reference` | Scalar |
+
+The **POS API** tab of this site is built from the same document.
+
+<Note>
+  `npm run openapi:export` (writes the document without a database) and the sync workflow that opens a PR here are on the `chore/openapi-export` branch, **not yet merged** into `staging`.
+</Note>

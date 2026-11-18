@@ -1,0 +1,78 @@
+---
+title: "Authentication"
+description: "Send your API key in the x-api-key header, with the scopes each route needs."
+---
+
+Every request to `/external/v1` carries an API key in the `x-api-key` header:
+
+```bash
+curl "$MIZANIYA_API_URL/external/v1/me" -H "x-api-key: $MIZANIYA_API_KEY"
+```
+
+<Warning>
+  Call the API from your **server** only. Never put a key in a web page, a mobile app or a public repository: anyone holding it can spend your balance.
+</Warning>
+
+## API keys
+
+You create and remove keys yourself, in the developer area of the Mizaniya Pay app. Each key has:
+
+| Field | Meaning |
+| --- | --- |
+| Label | A name to recognise the key. |
+| Scopes | What the key may do (see below). At least one. |
+| Expiry | Optional. After this date the key is refused. |
+
+The full key is shown once, when you create it. Mizaniya Pay keeps only a hash of it, so a lost key can't be recovered: remove it and create a new one. Later, the app shows only the key's prefix, such as `mzp_test_zsupvrRf9jad`.
+
+## Environments
+
+| Environment | Key starts with | Server |
+| --- | --- | --- |
+| Sandbox | `mzp_test_` | The sandbox server. For building and testing. |
+| Live | `mzp_live_` | The live server. Real sales, real balance. |
+
+Each server accepts keys of its own environment only. A key sent to the wrong server is refused with `API_KEY401_WRONG_ENVIRONMENT`.
+
+## Scopes
+
+| Scope | Routes |
+| --- | --- |
+| none | `GET /me` |
+| `balance:read` | `GET /balance` |
+| `catalog:read` | `GET /commissions`, `GET /products`, `GET /products/gift-cards`, `GET /products/gift-cards/{productId}`, `GET /products/esim`, `GET /products/esim/{locationCode}`, `GET /products/esim/packages/{packageId}/price` |
+| `sell:create` | `POST /orders` |
+| `orders:read` | `GET /orders`, `GET /orders/{id}`, `GET /orders/{id}/cards` |
+
+A route called with a key that lacks its scope answers `403` with `API_KEY403_INSUFFICIENT_SCOPE`. Give each key only the scopes it needs: a reporting tool needs `orders:read`, not `sell:create`.
+
+## When a key stops working
+
+| Error code | Why |
+| --- | --- |
+| `API_KEY401_MISSING` | No `x-api-key` header. |
+| `API_KEY401_INVALID` | The key doesn't exist. |
+| `API_KEY401_EXPIRED` | The key passed its expiry date. |
+| `API_KEY401_REVOKED` | You removed the key. |
+| `API_KEY401_BLOCKED` | Mizaniya Pay blocked the key. Contact Mizaniya Pay. |
+| `API_KEY401_WRONG_ENVIRONMENT` | A sandbox key on the live server, or the other way round. |
+
+## Rate limits
+
+Requests are counted per minute:
+
+- **Per key,** reads (`GET`) and writes (`POST`) are counted separately, so polling orders doesn't use up your sales.
+- **Per IP address,** all requests together.
+
+Over a limit, the API answers `429` with `API_KEY429_RATE_LIMITED`. `details.retryAfter` gives the seconds to wait before the next request.
+
+```json
+{
+  "statusCode": 429,
+  "message": "Rate limit exceeded for this API key",
+  "errorCode": "API_KEY429_RATE_LIMITED",
+  "details": { "limit": 120, "retryAfter": 34 }
+}
+```
+
+{/* Exact production limits: PARTNER_API_READ_LIMIT_PER_MINUTE / PARTNER_API_WRITE_LIMIT_PER_MINUTE (code defaults 120 / 20). Publish once confirmed. */}

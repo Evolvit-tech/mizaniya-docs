@@ -1,0 +1,254 @@
+---
+title: "Environment variables"
+description: "Every variable each app reads, what it does, and whether you must set it."
+---
+
+Each backend validates its environment at startup with a zod schema, `src/common/config/environment.validation.ts`. A missing required variable stops the app with `Environment validation failed:` and the variable's name.
+
+**Required** means the app does not start without it. **Default** is the value used when the variable is unset.
+
+**Fake values for every required variable**, ready to run locally, are in the local kit: `local-dev-kit/env/pos.env.example` and `local-dev-kit/env/admin.env.example`.
+
+<Warning>
+  Never paste a real value into this page, a PR or a chat. Every example here is fake. For local work, the [local kit](/local-setup) generates working fake values.
+</Warning>
+
+<Note>
+  This page follows the `staging` branch. When you add or change a variable, update the schema, the repository's `.env.sample`, and this page in the same PR.
+</Note>
+
+## POS backend
+
+### Runtime
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `NODE_ENV` | No | `dev` | `production` turns on the Swagger login, real phone codes and the production-only checks |
+| `PORT` | No | `3001` | HTTP port |
+| `CONFIGS_API_BASE_URL` | No | `http://localhost:3000` | Public address of this API |
+| `CONFIGS_CORS_ORIGINS` | No | none, see below | Comma-separated web origins allowed to call the API |
+| `TRUST_PROXY_HOPS` | No | `0` | Number of reverse proxies in front of the app; staging uses `2` |
+| `CONFIGS_LAST_ACTIVE_THRESHOLD_BY_DAYS` | No | `30` | Days without activity before an account counts as inactive |
+| `SWAGGER_USER` | In production | none | Login for `/api`, `/api-json` and `/reference` |
+| `SWAGGER_PASS` | In production | none | Password for the same routes |
+
+<Warning>
+  `main.ts` reads `CONFIGS_CORS_ORIGINS` straight from the process, so the schema's default never applies. **If it is unset, no browser origin is allowed** and the web app cannot call the API.
+</Warning>
+
+### Database and Redis
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `DB_HOST` | No | `localhost` | Postgres host |
+| `DB_PORT` | No | `5432` | Postgres port |
+| `DB_USERNAME` | Yes | none | Postgres user |
+| `DB_PASSWORD` | Yes | none | Postgres password |
+| `DB_NAME` | Yes | none | Database name |
+| `REDIS_HOST` | Yes, not validated | none | Redis host |
+| `REDIS_PORT` | Yes, not validated | none | Redis port |
+| `REDIS_USERNAME` | No | empty | Redis user |
+| `REDIS_PASSWORD` | Yes, not validated | none | Redis password |
+
+The `REDIS_*` variables are read outside the schema (`src/common/redis-store/redis-store.ts`). A missing one fails at the first cache call, not at startup.
+
+### Accounts and tokens
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `CONFIGS_SAPWD` | Yes | none | Validated at startup but not used by the code |
+| `SAPWD` | For migrations | none | Super admin password, read by the migration that creates the super admin |
+| `CONFIGS_POS_DEFAULT_PASSWORD` | No | see code | Password given to a new POS account until its first login |
+| `CONFIGS_EMAIL_VERIFY_URL` | No | `http://localhost:3005` | Web page that email-verification links open |
+| `CONFIGS_SIGNUP_WITH_TOKEN_URL` | No | `http://localhost:3005` | Web page that sign-up invitation links open |
+| `JWT_AT_SECRET` | Yes | none | Signs access tokens |
+| `JWT_RT_SECRET` | Yes | none | Signs refresh tokens |
+| `JWT_ACCESS_TOKEN_EXPIRY` | No | `1d` | Access token lifetime |
+| `JWT_REFRESH_TOKEN_EXPIRY` | No | `7d` | Refresh token lifetime |
+| `JWT_PASSWORD_RESET_TOKEN_EXPIRY` | No | `10m` | Password reset token lifetime |
+| `JWT_EMAIL_VERIFY_TOKEN_EXPIRY` | No | `24h` | Email verification token lifetime |
+
+<Warning>
+  The super admin is created by the shared-database migration `manual-MGSuperAdmin`, which reads `SAPWD`, not `CONFIGS_SAPWD`. The staging POS deploy runs the migrations, so the POS environment needs **both**.
+</Warning>
+
+### Email and SMS
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `EMAIL_HOST` | Yes | none | SMTP host |
+| `EMAIL_USERNAME` | Yes | none | SMTP login, must be an email address |
+| `EMAIL_PASSWORD` | Yes | none | SMTP password |
+| `MAIL_DISABLED` | No | `false` | `true` logs emails instead of sending them; refused in production |
+| `OTP_API_URL` | Yes | none | SMS gateway address |
+| `OTP_API_KEY` | Yes | none | SMS gateway key |
+| `OTP_API_USERNAME` | Yes | none | SMS gateway user |
+| `OTP_API_PASSWORD` | Yes | none | SMS gateway password |
+| `OTP_API_SENDERID` | Yes | none | Sender name shown on the SMS |
+| `OTP_EXPIRATION_DURATION` | No | `5m` | Phone code lifetime |
+| `SMS_DISABLED` | No | `false` | `true` logs SMS instead of sending them; refused in production |
+
+Outside `production`, the phone code is always `000000` and no SMS is sent.
+
+### Storage (S3)
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `AWS_ACCESS_KEY_ID` | Yes | none | S3 access key |
+| `AWS_SECRET_ACCESS_KEY` | Yes | none | S3 secret key |
+| `AWS_REGION` | No | `us-east-1` | S3 region |
+| `AWS_S3_PUBLIC_BUCKET` | No | `staging-public-oss-mp` | Bucket for public files |
+| `AWS_S3_PRIVATE_BUCKET` | No | `staging-private-oss-mp` | Bucket for ID cards and other private files |
+| `AWS_CLOUDFRONT_PUBLIC_URL` | No | staging CloudFront URL | CDN address of the public bucket |
+| `AWS_KMS_KEY_ID` | No | none | KMS key for server-side encryption |
+| `AWS_PRESIGNED_URL_EXPIRY` | No | `900` | Lifetime of a signed download link, in seconds |
+| `AWS_STORAGE_MASTER_KEY` | Yes | none | Key that encrypts stored files |
+| `AWS_STORAGE_MASTER_KEY_SALT` | Yes | none | Salt for the same key |
+
+### Providers
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `ONECLICK_BASE_URL` | No | `https://api.oneclickdz.com/v3/` | OneClick address |
+| `ONECLICK_API_KEY` | In production | empty | OneClick key; empty means every OneClick sale fails |
+| `GOSIM_API_BASE_URL` | In production | empty | GoSIM address |
+| `GOSIM_API_KEY` | In production | empty | GoSIM key; GoSIM also allow-lists the caller's IP |
+| `STATIC_QR_BASE_URL` | In production | empty | Static QR platform address |
+| `STATIC_QR_API_KEY` | In production | empty | Static QR platform key |
+| `STATIC_QR_CLIENT_URL` | In production | empty | Customer payment page a scanned QR opens |
+
+### Mobile top-ups
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `MOBILE_MIN_AMOUNT_DJEZZY` | No | `100` | Smallest Djezzy top-up, in DZD |
+| `MOBILE_MIN_AMOUNT_OOREDOO` | No | `100` | Smallest Ooredoo top-up, in DZD |
+| `MOBILE_MIN_AMOUNT_MOBILIS` | No | `40` | Smallest Mobilis top-up, in DZD |
+| `MOBILE_MAX_AMOUNT_DJEZZY` | No | `5000` | Largest Djezzy top-up, in DZD |
+| `MOBILE_MAX_AMOUNT_OOREDOO` | No | `5000` | Largest Ooredoo top-up, in DZD |
+| `MOBILE_MAX_AMOUNT_MOBILIS` | No | `5000` | Largest Mobilis top-up, in DZD |
+| `MOBILE_CATALOG_TTL_SECONDS` | No | `300` | How long a fetched plan list stays fresh |
+| `MOBILE_CATALOG_STALE_TOLERANCE_SECONDS` | No | `3600` | How long past that a stale list may be served when OneClick is down |
+| `MOBILE_CATALOG_STALE_TOLERANCE_SECONDS_DJEZZY` | No | global value | Djezzy override of the stale tolerance |
+| `MOBILE_CATALOG_STALE_TOLERANCE_SECONDS_OOREDOO` | No | global value | Ooredoo override of the stale tolerance |
+| `MOBILE_CATALOG_STALE_TOLERANCE_SECONDS_MOBILIS` | No | global value | Mobilis override of the stale tolerance |
+
+The real bounds are these values intersected with the operator's own plan limits.
+
+### Gift cards and eSIM
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `GIFT_CATALOG_TTL_SECONDS` | No | `86400` | How long the gift card catalog stays fresh |
+| `GIFT_CATALOG_STALE_TOLERANCE_SECONDS` | No | `172800` | How long past that a stale catalog may be served |
+| `GIFT_CATALOG_REGION` | No | `all` | `all`, or a comma-separated list of regions to sell; cards with no region are always sold |
+| `GIFT_CARD_MARKUP_PERCENT` | No | `5` | Markup on the wholesale card price |
+| `GIFT_CARD_SERVICE_FEE_DZD` | No | `0` | Fixed fee per card, shown as its own line |
+| `GIFT_CARD_MAX_QUANTITY` | No | `10` | Most cards in one order |
+| `GIFT_CARD_ENCRYPTION_KEY` | In production | empty | 64 hex characters (`openssl rand -hex 32`) that encrypt delivered card codes |
+| `GIFT_CARD_COST_PLUS_ENABLED` | No | `false` | Each network member adds its own markup on cards |
+| `ESIM_COST_PLUS_ENABLED` | No | `false` | Each network member adds its own markup on eSIMs |
+| `ESIM_MARKUP_PERCENT` | No | `0` | Admin markup on GoSIM's price where no location markup is set |
+
+Without `GIFT_CARD_ENCRYPTION_KEY`, the app cannot store delivered cards and keeps those orders open. Production refuses to start without it.
+
+### Partner API
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `PARTNER_API_ENVIRONMENT` | No | `live` | Which keys this deployment accepts: `live` or `sandbox` |
+| `PARTNER_API_READ_LIMIT_PER_MINUTE` | No | `120` | Read calls allowed per key per minute |
+| `PARTNER_API_WRITE_LIMIT_PER_MINUTE` | No | `20` | Write calls allowed per key per minute |
+| `API_KEYS_MAX_ACTIVE_PER_POS_ACCOUNT` | No | `1` | Live keys one POS account may hold |
+| `PARTNER_API_REQUEST_RETENTION_DAYS` | No | `90` | Days a partner call stays in the admin tracking |
+
+### Orders and feature switches
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `MARKETPLACE_CONFIRM_WAIT_SECONDS` | No | `10` | How long a sale waits for the operator's answer before replying |
+| `MARKETPLACE_MAX_WAIT_MINUTES` | No | `30` | After this, an unsettled order is shown as being verified |
+| `COMMISSION_ENGINE_ENABLED` | No | `false` | Use the new commission engine; must match the admin backend |
+| `BILLS_ENABLED` | No | `false` | Bill payments; `false` hides the `/bills` routes |
+| `VTPE_ENABLED` | No | `true` | V-TPE (customer pays on the seller's QR); `false` refuses new V-TPE payments |
+
+## Admin backend
+
+The admin backend uses **different names** for some of the same settings. Copying a POS `.env` does not work.
+
+| POS backend | Admin backend |
+| --- | --- |
+| `CONFIGS_SAPWD` | `SAPWD` |
+| `CONFIGS_API_BASE_URL` | `API_BASE_URL` |
+| `CONFIGS_CORS_ORIGINS` | `CORS_ORIGINS` |
+| `AWS_STORAGE_MASTER_KEY` | `STORAGE_MASTER_KEY` |
+| `AWS_STORAGE_MASTER_KEY_SALT` | `STORAGE_MASTER_KEY_SALT` |
+| `JWT_ACCESS_TOKEN_EXPIRY` | `ACCESS_TOKEN_EXPIRY` |
+| `JWT_REFRESH_TOKEN_EXPIRY` | `REFRESH_TOKEN_EXPIRY` |
+| `JWT_PASSWORD_RESET_TOKEN_EXPIRY` | `PASSWORD_RESET_TOKEN_EXPIRY` |
+
+### Same as the POS backend
+
+These work exactly as in the POS backend tables above:
+
+- **Runtime:** `NODE_ENV`, `PORT`, `CONFIGS_LAST_ACTIVE_THRESHOLD_BY_DAYS`, `SWAGGER_USER`, `SWAGGER_PASS`.
+- **Database and Redis:** every `DB_*` and `REDIS_*` variable.
+- **Tokens:** `JWT_AT_SECRET`, `JWT_RT_SECRET`, `JWT_EMAIL_VERIFY_TOKEN_EXPIRY`, `CONFIGS_EMAIL_VERIFY_URL`.
+- **Email:** `EMAIL_HOST`, `EMAIL_USERNAME`, `EMAIL_PASSWORD`, `MAIL_DISABLED`, `OTP_EXPIRATION_DURATION`.
+- **Storage:** every `AWS_*` variable except the master key pair (renamed above).
+- **Static QR:** `STATIC_QR_BASE_URL`, `STATIC_QR_API_KEY`.
+- **OneClick:** `ONECLICK_BASE_URL` (default `https://api.oneclickdz.com/v3/`) and `ONECLICK_API_KEY` (default empty). The admin backend uses them **read-only**, to read the gift card list and each card's stock for the update button. Use the same key as the POS backend; with an empty key the update fails.
+
+`CORS_ORIGINS` has the same trap as the POS one: unset means no origin is allowed.
+
+`REDIS_USERNAME` has no empty fallback in the admin backend: if it is unset, the Redis URL holds the word `undefined` as the user. Set it, even to an empty value.
+
+### Admin only
+
+| Variable | Required | Default | Purpose |
+| --- | --- | --- | --- |
+| `SAPWD` | Yes | none | Super admin password; also read by the super admin migration |
+| `STORAGE_MASTER_KEY` | Yes | none | Key that encrypts stored files |
+| `STORAGE_MASTER_KEY_SALT` | Yes | none | Salt for the same key |
+| `API_BASE_URL` | No | `http://localhost:3000` | Public address of this API |
+| `CORS_ORIGINS` | No | none | Comma-separated web origins allowed to call the API |
+| `CONFIGS_DISTRIBUTOR_WALLET_NAME` | No | `distributor_wallet` | Name of the distributor wallet |
+
+### Must match the POS backend
+
+The admin backend only **shows** prices and margins; the POS backend **charges** them. Set these to the same values in both, or the admin team sees prices nobody pays:
+
+| Variable | Default |
+| --- | --- |
+| `COMMISSION_ENGINE_ENABLED` | `false` |
+| `GIFT_CARD_COST_PLUS_ENABLED` | `false` |
+| `GIFT_CARD_MARKUP_PERCENT` | `5` |
+| `GIFT_CARD_SERVICE_FEE_DZD` | `0` |
+| `ESIM_COST_PLUS_ENABLED` | `false` |
+| `ESIM_MARKUP_PERCENT` | `0` |
+| `GIFT_CATALOG_REGION` | `all` |
+
+`GIFT_CATALOG_REGION` decides which regions' gift cards are sold: the admin's update reads the same regions as the POS catalog.
+
+## Web apps
+
+The web apps read `VITE_*` variables **at build time**. Changing one means rebuilding the app.
+
+### Market web app
+
+| Variable | Required | Example | Purpose |
+| --- | --- | --- | --- |
+| `VITE_API_URL` | Yes | `http://127.0.0.1:3101` | POS API address |
+| `VITE_VTPE_ENABLED` | No | `true` | `false` hides V-TPE everywhere: its window in other services and the payment method; on when unset |
+| `VITE_VTPE_AS_PAYMENT` | No | `false` | `true` also offers V-TPE as the payment method of gift cards, bills and eSIM; off when unset |
+| `VITE_DEV_LOGIN_EMAIL` | No | `master@example.test` | Prefills the login form in dev builds only |
+| `VITE_DEV_LOGIN_PASSWORD` | No | `Example#2026` | Prefills the login form in dev builds only |
+
+Keep `VITE_VTPE_ENABLED` in step with the POS backend's `VTPE_ENABLED`. `VITE_VTPE_AS_PAYMENT` only works while V-TPE itself is on. The staging image does not pass it, so on staging every sale is paid in cash and V-TPE is used from its own window.
+
+### Admin web app
+
+| Variable | Required | Example | Purpose |
+| --- | --- | --- | --- |
+| `VITE_API_URL` | Yes | `http://127.0.0.1:3110` | Admin API address |
+| `VITE_SIGNUP_URL` | No | `http://127.0.0.1:4182/signup` | Sign-up link the admin team shares with new POS accounts |

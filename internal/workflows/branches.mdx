@@ -1,0 +1,53 @@
+---
+title: "Branches"
+description: "Which branch is which in the six repositories, and what each one deploys."
+---
+
+## `staging` is the working branch
+
+**All six repositories work on `staging`.** It holds the newest code, and every push to it deploys the four apps to the staging server (see [Architecture](/architecture#deployment-staging)).
+
+Branch your work from `staging`, and bring it back to `staging`.
+
+## The long-lived branches
+
+| Branch | Role today | Last commit (backends) |
+| --- | --- | --- |
+| `staging` | Active development; deploys staging through `staging.yml` | Daily |
+| `dev` | The previous working branch; still triggers the old deploy workflows | 4 Nov 2026 |
+| `main` | Older release line | Sept to Oct 2026 |
+| `deployment` | Old self-hosted staging deploy for the shared database | Sept to Oct 2026 |
+| `local-test` | The local kit's old default; the kit now runs `staging` | 20 Oct 2026 |
+
+<Warning>
+  **Pushing to `dev` still deploys** through the old workflows: `deploy.yml` (POS backend), `deploy-staging.yml` (admin backend, market web app) and `deploy-stating.yml` (admin web app). Ask the tech lead before pushing there.
+</Warning>
+
+**`local-test` is no longer used.** It is missing from `Mizaniya-Pay-POS-Backend` and `mizaniya-pay-frontend-market` on GitHub and far behind `staging` elsewhere, so the [local kit](/local-setup) now checks out `staging`.
+
+## Work branches
+
+Name your branch after the change, with a prefix:
+
+| Prefix | For |
+| --- | --- |
+| `feat/` | A new feature (`feature/` is also in use) |
+| `fix/` | A bug fix |
+| `chore/` | Tooling, dependencies, config |
+| `docs/` | Documentation |
+
+Older prefixes seen in the repositories: `final/`, `release/`, and `feat/phase-NN-…` for the delivery phases.
+
+## Changes across repositories
+
+A feature often touches several repositories. Keep **the same branch name** in each, so `./local-dev.sh checkout <branch>` can switch all six at once.
+
+Bring the changes to `staging` in dependency order:
+
+1. **Shared database** first, then bump its pin in both backends. See [Shared database](/backend/shared-database#change-the-schema).
+2. **Core library** before the web apps, because their staging builds take the library's `staging` branch. See [Core library](/frontend/core#releasing-a-change).
+3. **Backends** before the web apps that call new routes.
+
+## Commits on protected branches
+
+The backends' `pre-commit` hook refuses commits made directly on `main`, `master` or `dev`. It does **not** protect `staging`. See [Pull requests](/workflows/pull-requests#git-hooks).

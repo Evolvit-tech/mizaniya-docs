@@ -1,0 +1,62 @@
+---
+title: "Mizaniya Pay Partner API"
+description: "Sell mobile top-ups, gift cards and eSIMs from your own website or app."
+---
+
+The Mizaniya Pay Partner API lets your own website, app or back office sell what a Mizaniya Pay point of sale sells, using your account's balance:
+
+- **Mobile top-ups** for Djezzy, Ooredoo and Mobilis numbers.
+- **Gift cards** for games, streaming and other digital services.
+- **eSIMs** for travel, by country, region or worldwide.
+
+Every request is made by your server with an API key, and every sale is paid from your Mizaniya Pay balance at the price your account gets in the app.
+
+## How it works
+
+<Steps>
+  <Step title="Create an API key">
+    Create a key in the developer area of the Mizaniya Pay app and choose what it may do (its scopes). See [Authentication](/authentication).
+  </Step>
+  <Step title="Read the catalog">
+    List what you can sell and at what price: top-up plans, gift card denominations or eSIM packages.
+  </Step>
+  <Step title="Place the order">
+    Send one `POST /external/v1/orders` with the product `type` and its fields. The price is taken from your balance.
+  </Step>
+  <Step title="Get the outcome">
+    Most orders finish after a short wait. Poll `GET /external/v1/orders/{id}` until the order is final, then deliver the result to your customer.
+  </Step>
+</Steps>
+
+## Start here
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Make your first calls with a sandbox key.
+  </Card>
+
+  <Card title="Authentication" icon="key" href="/authentication">
+    API keys, environments, scopes and rate limits.
+  </Card>
+
+  <Card title="Errors" icon="triangle-exclamation" href="/errors">
+    The error format and every error code.
+  </Card>
+
+  <Card title="API Reference" icon="code" href="/api-reference/partner-api/the-account-and-scopes-behind-the-presented-key">
+    Every route, with request and response examples.
+  </Card>
+</CardGroup>
+
+## Product guides
+
+<CardGroup cols={3}>
+  <Card title="Mobile top-ups" icon="mobile" href="/guides/top-up">
+  </Card>
+
+  <Card title="Gift cards" icon="gift" href="/guides/gift-cards">
+  </Card>
+
+  <Card title="eSIM" icon="sim-card" href="/guides/esim">
+  </Card>
+</CardGroup>
